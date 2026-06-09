@@ -104,8 +104,8 @@ function App() {
 
       <header className="topbar">
         <div className="brand">
-          <span className="brand-mark">TV</span>
-          <span className="brand-name">TradeVille</span>
+          <span className="brand-mark">⚽</span>
+          <span className="brand-name">FIFA Cup 2026</span>
         </div>
         <div className="topbar-meta">
           <span className="meta-prog">{done}<span>/{total}</span> meciuri jucate</span>
@@ -115,7 +115,7 @@ function App() {
 
       <div className="hero">
         <div className="hero-kicker">10 – 25 Iunie 2026 · 16 echipe · 4 grupe</div>
-        <h1 className="hero-title">FIFA CUP<br /><span>TRADEVILLE</span></h1>
+        <h1 className="hero-title">FIFA CUP<br /><span>2026</span></h1>
         <div className="hero-sub">Turneul perechilor · grupe + faza eliminatorie</div>
       </div>
 
