@@ -35,6 +35,58 @@ function Groups({ store }) {
   );
 }
 
+function Reschedule({ store }) {
+  return (
+    <div className="view">
+      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <h2 style={{ fontSize: '24px', marginBottom: '20px', color: 'var(--txt)' }}>Reschedule Matches</h2>
+        <table className="reschedule-table">
+          <thead>
+            <tr>
+              <th>Meci</th>
+              <th style={{ width: '200px' }}>Data Inițială</th>
+              <th style={{ width: '200px' }}>Data Nouă</th>
+            </tr>
+          </thead>
+          <tbody>
+            {window.TV.MATCHES.map(m => {
+              const home = TEAMS[m.home];
+              const away = TEAMS[m.away];
+              const actualDate = store.state.schedule[m.id] || m.date;
+              return (
+                <tr key={m.id}>
+                  <td>
+                    <div className="rs-match">
+                      <span className="rs-flag">{home.flag}</span>
+                      <div className="rs-teams">
+                        <div className="rs-team">{home.country}</div>
+                        <div className="rs-vs">vs</div>
+                        <div className="rs-team">{away.country}</div>
+                      </div>
+                      <span className="rs-flag">{away.flag}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="rs-date-label">{m.label}</div>
+                  </td>
+                  <td>
+                    <input
+                      className="rs-date-input"
+                      type="date"
+                      value={actualDate}
+                      onChange={(e) => store.setSchedule(m.id, e.target.value)}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const store = window.ENGINE.useTournament();
   const [tab, setTab] = useStateA('grupe');
@@ -71,12 +123,14 @@ function App() {
         <button className={tab === 'grupe' ? 'on' : ''} onClick={() => setTab('grupe')}>Grupe</button>
         <button className={tab === 'calendar' ? 'on' : ''} onClick={() => setTab('calendar')}>Calendar</button>
         <button className={tab === 'bracket' ? 'on' : ''} onClick={() => setTab('bracket')}>Faza eliminatorie</button>
+        <button className={tab === 'reschedule' ? 'on' : ''} onClick={() => setTab('reschedule')}>Reprogramare</button>
       </nav>
 
-      <main className="view">
-        {tab === 'grupe' && <Groups store={store} />}
+      <main>
+        {tab === 'grupe' && <div className="view"><Groups store={store} /></div>}
         {tab === 'calendar' && <Calendar store={store} />}
-        {tab === 'bracket' && <Bracket store={store} />}
+        {tab === 'bracket' && <div className="view"><Bracket store={store} /></div>}
+        {tab === 'reschedule' && <Reschedule store={store} />}
       </main>
 
       <footer className="foot">
