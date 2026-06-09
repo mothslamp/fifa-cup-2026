@@ -1003,15 +1003,26 @@ function Groups({ store }) {
 }
 
 function Reschedule({ store }) {
+  const getDateLabel = (dateStr) => {
+    const date = new Date(dateStr + 'T00:00:00');
+    const days = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă'];
+    const months = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'];
+    const day = days[date.getDay()];
+    const dayNum = date.getDate();
+    const month = months[date.getMonth()];
+    return `${day} ${dayNum} ${month}`;
+  };
+
   return (
     <div className="view">
-      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <h2 style={{ fontSize: '24px', marginBottom: '20px', color: 'var(--txt)' }}>Reprogramare Meciuri</h2>
         <table className="reschedule-table">
           <thead>
             <tr>
               <th>Meci</th>
-              <th style={{ width: '200px' }}>Data</th>
+              <th style={{ width: '250px' }}>Data Meci</th>
+              <th style={{ width: '200px' }}>Alege Data</th>
             </tr>
           </thead>
           <tbody>
@@ -1031,6 +1042,9 @@ function Reschedule({ store }) {
                       </div>
                       <span className="rs-flag">{away.flag}</span>
                     </div>
+                  </td>
+                  <td>
+                    <div className="rs-date-label">{getDateLabel(actualDate)}</div>
                   </td>
                   <td>
                     <input
