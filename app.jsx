@@ -7,9 +7,11 @@ function Calendar({ store }) {
   const dates = [];
   const byDate = {};
   window.TV.MATCHES.forEach(m => {
-    if (!byDate[m.date]) { byDate[m.date] = { label: m.label, items: [] }; dates.push(m.date); }
-    byDate[m.date].items.push(m);
+    const actualDate = store.state.schedule[m.id] || m.date;
+    if (!byDate[actualDate]) { byDate[actualDate] = { label: m.label, items: [] }; dates.push(actualDate); }
+    byDate[actualDate].items.push(m);
   });
+  dates.sort();
   return (
     <div className="calendar">
       {dates.map(d => (
