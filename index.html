@@ -962,16 +962,27 @@ function Calendar({ store }) {
   const byDate = {};
   window.TV.MATCHES.forEach(m => {
     const actualDate = store.state.schedule[m.id] || m.date;
-    if (!byDate[actualDate]) { byDate[actualDate] = { label: m.label, items: [] }; dates.push(actualDate); }
+    if (!byDate[actualDate]) { byDate[actualDate] = { items: [] }; dates.push(actualDate); }
     byDate[actualDate].items.push(m);
   });
   dates.sort();
+
+  const getDateLabel = (dateStr) => {
+    const date = new Date(dateStr + 'T00:00:00');
+    const days = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă'];
+    const months = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'];
+    const day = days[date.getDay()];
+    const dayNum = date.getDate();
+    const month = months[date.getMonth()];
+    return `${day} ${dayNum} ${month}`;
+  };
+
   return (
     <div className="calendar">
       {dates.map(d => (
         <section className="cal-day" key={d}>
           <div className="cal-daylabel">
-            <span className="cal-dot" />{byDate[d].label}
+            <span className="cal-dot" />{getDateLabel(d)}
             <span className="cal-count">{byDate[d].items.length} {byDate[d].items.length === 1 ? 'meci' : 'meciuri'}</span>
           </div>
           <div className="cal-grid">
