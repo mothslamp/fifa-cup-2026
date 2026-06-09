@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FIFA Cup 2026 - Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#08090c;
+  --bg2:#0d0f14;
+  --panel:#121419;
+  --panel2:#171a21;
+  --line:#23262f;
+  --line2:#2c303b;
+  --txt:#eef0f4;
+  --mut:#9aa0ad;
+  --mut2:#6b7280;
+  --gold:#e9c46a;
+  --gold2:#f6dd92;
+  --gold-deep:#c79a3a;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:'Barlow',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+button{font-family:inherit;cursor:pointer;}
+input{font-family:inherit;}
+
+/* ---------- background ---------- */
+.app{position:relative;min-height:100vh;overflow:hidden;}
+.bg-orbs{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60vw 60vw at 50% -10%, rgba(233,196,106,.10), transparent 60%),
+    radial-gradient(40vw 40vw at 8% 30%, rgba(22,196,127,.06), transparent 60%),
+    radial-gradient(40vw 40vw at 92% 70%, rgba(59,130,246,.06), transparent 60%),
+    linear-gradient(180deg,#0a0b0f,#08090c);
+}
+.app>*{position:relative;z-index:1;}
+
+/* ---------- topbar ---------- */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(16px,4vw,48px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{
+  display:grid;place-items:center;width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg,#1ad6a0,#0fa37a);
+  color:#04130d;font-family:'Anton';font-size:16px;letter-spacing:.5px;
+  box-shadow:0 0 0 1px rgba(255,255,255,.08),0 6px 18px rgba(16,180,120,.35);
+}
+.brand-name{font-family:'Barlow Condensed';font-weight:700;font-size:20px;letter-spacing:.5px;}
+.topbar-meta{display:flex;align-items:center;gap:16px;}
+.meta-prog{font-family:'Barlow Condensed';font-weight:600;font-size:15px;color:var(--mut);letter-spacing:.3px;}
+.meta-prog span{color:var(--mut2);}
+.btn-reset{
+  background:transparent;border:1px solid var(--line2);color:var(--mut);
+  padding:7px 14px;border-radius:8px;font-family:'Barlow Condensed';font-weight:600;
+  font-size:13px;letter-spacing:.6px;text-transform:uppercase;transition:.15s;
+}
+.btn-reset:hover{border-color:#5a3a3a;color:#ff7a8a;}
+
+/* ---------- hero ---------- */
+.hero{text-align:center;padding:46px 16px 30px;}
+.hero-kicker{
+  font-family:'Barlow Condensed';font-weight:600;letter-spacing:3px;text-transform:uppercase;
+  font-size:14px;color:var(--gold);opacity:.85;
+}
+.hero-title{
+  font-family:'Anton';font-weight:400;line-height:.92;margin:12px 0 0;
+  font-size:clamp(48px,9vw,108px);letter-spacing:1px;text-transform:uppercase;
+  background:linear-gradient(180deg,#fff 0%,#f6e0a6 45%,#d9b25a 72%,#a87f2e 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 6px 30px rgba(233,196,106,.18));
+}
+.hero-title span{
+  background:linear-gradient(180deg,#fff 0%,#f6e0a6 45%,#d9b25a 72%,#a87f2e 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-sub{
+  margin-top:14px;color:var(--mut);font-size:15px;font-weight:500;letter-spacing:.4px;
+}
+
+/* ---------- tabs ---------- */
+.tabs{
+  display:flex;gap:6px;justify-content:center;flex-wrap:wrap;
+  padding:8px;margin:8px auto 0;width:fit-content;max-width:94vw;
+  background:rgba(18,20,25,.7);border:1px solid var(--line);border-radius:14px;
+  backdrop-filter:blur(8px);
+}
+.tabs button{
+  background:transparent;border:none;color:var(--mut);
+  font-family:'Barlow Condensed';font-weight:600;font-size:16px;letter-spacing:.5px;
+  padding:10px 20px;border-radius:9px;transition:.18s;text-transform:uppercase;white-space:nowrap;
+}
+.tabs button:hover{color:var(--txt);}
+.tabs button.on{
+  color:#0b0c10;
+  background:linear-gradient(180deg,#f6e0a6,#dcb25c);
+  box-shadow:0 4px 16px rgba(220,178,92,.3);
+}
+
+/* ---------- view container ---------- */
+.view{max-width:1320px;margin:0 auto;padding:34px clamp(14px,3.5vw,40px) 20px;}
+
+/* ---------- groups ---------- */
+.groups-grid{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;
+}
+@media(max-width:880px){.groups-grid{grid-template-columns:1fr;}}
+.groupcard{
+  background:linear-gradient(180deg,var(--panel),#0f1116);
+  border:1px solid var(--line);border-radius:18px;overflow:hidden;
+  box-shadow:0 18px 50px rgba(0,0,0,.4);
+}
+.gc-head{
+  display:flex;align-items:center;gap:16px;padding:18px 20px;
+  border-bottom:1px solid var(--line);position:relative;
+  background:
+    linear-gradient(90deg,color-mix(in srgb,var(--c) 16%,transparent),transparent 60%);
+}
+.gc-head::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);box-shadow:0 0 16px var(--glow);}
+.flagtile{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:3px;flex:0 0 auto;
+  padding:5px;border-radius:10px;background:#0c0e12;border:1px solid var(--line2);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 40%,transparent);
+}
+.flagtile-f{font-size:18px;line-height:1;width:22px;height:22px;display:grid;place-items:center;}
+.gc-title{display:flex;flex-direction:column;}
+.gc-title h2{
+  margin:0;font-family:'Anton';font-weight:400;text-transform:uppercase;white-space:nowrap;
+  font-size:24px;letter-spacing:1px;color:var(--c);
+}
+.gc-prog{font-family:'Barlow Condensed';font-weight:600;font-size:13px;color:var(--mut);letter-spacing:.5px;}
+
+/* ---------- standings ---------- */
+.standings{width:100%;border-collapse:collapse;font-size:14px;}
+.standings thead th{
+  font-family:'Barlow Condensed';font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+  font-size:12px;color:var(--mut2);text-align:center;padding:11px 6px;border-bottom:1px solid var(--line);
+}
+.standings thead th.st-team{text-align:left;padding-left:16px;}
+.standings tbody td{padding:10px 6px;text-align:center;border-bottom:1px solid #1a1d24;vertical-align:middle;}
+.standings tbody tr:last-child td{border-bottom:none;}
+.st-pos{width:34px;color:var(--mut);font-weight:700;font-family:'Barlow Condensed';font-size:15px;}
+.st-team{text-align:left;padding-left:16px;}
+.st-team .st-flag{font-size:20px;margin-right:10px;vertical-align:middle;}
+.st-name{display:inline-flex;flex-direction:column;vertical-align:middle;}
+.st-country{font-family:'Barlow Condensed';font-weight:700;font-size:16px;letter-spacing:.3px;}
+.st-players{font-size:11.5px;color:var(--mut2);font-weight:500;}
+.st-w{color:var(--gold);font-weight:700;}
+.st-pts{font-family:'Barlow Condensed';font-weight:700;font-size:17px;color:var(--txt);width:46px;}
+.standings tr.qual{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 11%,transparent),transparent 70%);}
+.standings tr.qual .st-pos{color:var(--c);}
+.standings tr.qual td:first-child{box-shadow:inset 3px 0 0 var(--c);}
+.st-badge{
+  display:inline-block;margin-left:10px;vertical-align:middle;
+  font-family:'Barlow Condensed';font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.8px;
+  color:var(--c);border:1px solid color-mix(in srgb,var(--c) 50%,transparent);
+  padding:2px 7px;border-radius:20px;background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+
+/* ---------- group matches ---------- */
+.gc-matches{padding:16px;border-top:1px solid var(--line);background:#0c0e12;}
+.gc-matches-label{
+  font-family:'Barlow Condensed';font-weight:600;text-transform:uppercase;letter-spacing:1.2px;
+  font-size:12px;color:var(--mut2);margin:2px 2px 12px;
+}
+.gc-matches .matchcard{margin-bottom:10px;}
+.gc-matches .matchcard:last-child{margin-bottom:0;}
+
+/* ---------- match card ---------- */
+.matchcard{
+  background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+  transition:.15s;
+}
+.matchcard.done{border-color:var(--line2);}
+.mc-head{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.mc-grp{
+  font-family:'Barlow Condensed';font-weight:700;font-size:11px;letter-spacing:.6px;text-transform:uppercase;
+  color:var(--c);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);
+  padding:2px 8px;border-radius:6px;background:color-mix(in srgb,var(--c) 12%,transparent);
+}
+.mc-date{font-family:'Barlow Condensed';font-weight:500;font-size:12.5px;color:var(--mut);letter-spacing:.3px;}
+.mc-status{
+  margin-left:auto;font-family:'Barlow Condensed';font-weight:600;font-size:11px;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--mut2);
+}
+.mc-status.done{color:var(--gold);}
+.mc-body{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:8px;}
+.mc-team{
+  display:flex;align-items:center;gap:9px;text-align:left;
+  background:#0e1015;border:1px solid var(--line);border-radius:9px;padding:9px 11px;
+  color:var(--txt);transition:.15s;min-width:0;
+}
+.mc-team:hover{border-color:var(--line2);background:#12151b;}
+.mc-flag{font-size:22px;line-height:1;flex:0 0 auto;}
+.mc-tn{display:flex;flex-direction:column;min-width:0;}
+.mc-country{font-family:'Barlow Condensed';font-weight:700;font-size:15.5px;letter-spacing:.2px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mc-players{font-size:11px;color:var(--mut2);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mc-check{margin-left:auto;font-size:14px;color:transparent;flex:0 0 auto;transition:.15s;}
+.mc-team.win{
+  border-color:var(--win);background:color-mix(in srgb,var(--win) 16%,#0e1015);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--win) 40%,transparent);
+}
+.mc-team.win .mc-check{color:var(--win);}
+.mc-team.win .mc-country{color:#fff;}
+.mc-team.lose{opacity:.5;}
+.mc-vs{display:grid;place-items:center;font-family:'Barlow Condensed';font-weight:600;font-size:12px;color:var(--mut2);text-transform:uppercase;padding:0 2px;}
+.mc-foot{display:flex;align-items:center;gap:10px;margin-top:9px;}
+.mc-score{
+  flex:1;min-width:0;background:#0b0d11;border:1px solid var(--line);border-radius:8px;
+  color:var(--txt);padding:7px 11px;font-size:13px;font-weight:500;letter-spacing:.3px;
+}
+.mc-score::placeholder{color:#565d69;}
+.mc-score:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(233,196,106,.15);}
+.mc-reset{
+  background:transparent;border:1px solid var(--line2);color:var(--mut2);
+  font-family:'Barlow Condensed';font-weight:600;font-size:12px;letter-spacing:.4px;
+  padding:6px 11px;border-radius:8px;white-space:nowrap;transition:.15s;
+}
+.mc-reset:hover{color:var(--txt);border-color:#3a3f4b;}
+
+/* ---------- calendar ---------- */
+.calendar{display:flex;flex-direction:column;gap:30px;}
+.cal-day{}
+.cal-daylabel{
+  display:flex;align-items:center;gap:11px;margin:0 2px 14px;
+  font-family:'Anton';font-weight:400;text-transform:uppercase;font-size:22px;letter-spacing:.8px;color:var(--txt);
+}
+.cal-dot{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--gold);}
+.cal-count{
+  margin-left:6px;font-family:'Barlow Condensed';font-weight:600;font-size:12px;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--mut2);border:1px solid var(--line);padding:3px 10px;border-radius:20px;
+}
+.cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px;}
+
+/* ---------- bracket ---------- */
+.bracket-scroll{overflow-x:auto;padding:10px 4px 28px;}
+.bracket{
+  display:flex;align-items:stretch;justify-content:center;gap:0;min-width:1120px;margin:0 auto;
+}
+.bk-col{display:flex;flex-direction:column;justify-content:center;}
+.qf-col{gap:96px;}
+.sf-col{justify-content:center;}
+.kocard{
+  width:218px;background:linear-gradient(180deg,var(--panel),#0e1015);
+  border:1px solid var(--line);border-radius:12px;padding:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+}
+.ko-label{
+  font-family:'Barlow Condensed';font-weight:600;font-size:11px;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--mut2);text-align:center;margin-bottom:7px;
+}
+.ko-pair{display:flex;flex-direction:column;gap:4px;position:relative;}
+.ko-mid{text-align:center;font-family:'Barlow Condensed';font-weight:600;font-size:10px;color:var(--mut2);text-transform:uppercase;line-height:.6;}
+.ko-slot{
+  display:flex;align-items:center;gap:8px;text-align:left;width:100%;
+  background:#0e1015;border:1px solid var(--line);border-radius:8px;padding:7px 9px;min-height:42px;
+  color:var(--txt);transition:.15s;
+}
+.ko-slot:not(.empty):hover{border-color:var(--line2);background:#13161c;}
+.ko-slot.empty{cursor:default;border-style:dashed;border-color:#22252e;}
+.ko-flag{font-size:18px;flex:0 0 auto;}
+.ko-tn{display:flex;flex-direction:column;min-width:0;}
+.ko-country{font-family:'Barlow Condensed';font-weight:700;font-size:14px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ko-players{font-size:10px;color:var(--mut2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ko-check{margin-left:auto;color:transparent;font-size:13px;}
+.ko-slot.win{
+  border-color:var(--gold-deep);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 22%,#0e1015),#0e1015);
+  box-shadow:inset 0 0 0 1px rgba(233,196,106,.4);
+}
+.ko-slot.win .ko-check{color:var(--gold);}
+.ko-slot.win .ko-country{color:#fff;}
+.ko-slot.lose{opacity:.45;}
+.ko-seed{font-family:'Barlow Condensed';font-weight:700;font-size:14px;color:var(--mut);letter-spacing:.5px;}
+.ko-prov{font-size:10px;color:var(--mut2);margin-left:auto;font-style:italic;}
+
+/* connectors */
+.bk-conn{width:40px;display:flex;align-items:center;justify-content:center;}
+.bracket-shape{
+  width:22px;height:calc(50% );min-height:140px;
+}
+.bk-conn.left .bracket-shape{border-right:2px solid var(--line2);border-top:2px solid var(--line2);border-bottom:2px solid var(--line2);border-radius:0 8px 8px 0;position:relative;}
+.bk-conn.right .bracket-shape{border-left:2px solid var(--line2);border-top:2px solid var(--line2);border-bottom:2px solid var(--line2);border-radius:8px 0 0 8px;position:relative;}
+.bk-conn.left .bracket-shape::after{content:"";position:absolute;top:50%;left:100%;width:18px;height:2px;background:var(--line2);}
+.bk-conn.right .bracket-shape::after{content:"";position:absolute;top:50%;right:100%;width:18px;height:2px;background:var(--line2);}
+.bk-conn.flat{width:34px;}
+.bk-conn.flat .line{width:100%;height:2px;background:var(--line2);}
+
+/* center */
+.bk-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:0 10px;}
+.final-top,.bronze-bot{display:flex;flex-direction:column;align-items:center;gap:11px;}
+.final-label{
+  font-family:'Anton';font-weight:400;text-transform:uppercase;letter-spacing:1.5px;font-size:17px;white-space:nowrap;
+  background:linear-gradient(180deg,#fff,#dcb25c);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.final-label.bronze{background:linear-gradient(180deg,#e6c8a0,#b07b3e);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-size:13px;}
+.final-top .kocard{width:238px;border-color:var(--gold-deep);box-shadow:0 0 0 1px rgba(233,196,106,.25),0 16px 40px rgba(0,0,0,.5);}
+.bronze-bot .kocard{width:224px;}
+
+.trophy-wrap{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0;}
+.trophy-glow{
+  position:absolute;top:0;width:170px;height:170px;border-radius:50%;
+  background:radial-gradient(circle,rgba(233,196,106,.3),rgba(233,196,106,0) 65%);filter:blur(6px);
+}
+.trophy{font-size:82px;line-height:1;filter:drop-shadow(0 10px 28px rgba(233,196,106,.4));position:relative;}
+.champ-label{
+  font-family:'Barlow Condensed';font-weight:700;text-transform:uppercase;letter-spacing:3px;font-size:13px;
+  color:var(--gold);position:relative;
+}
+.champ{display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;}
+.champ-flag{font-size:30px;}
+.champ-country{font-family:'Anton';font-size:24px;letter-spacing:.5px;text-transform:uppercase;color:#fff;}
+.champ-players{font-size:12px;color:var(--mut);font-weight:500;}
+.champ-tbd{font-family:'Barlow Condensed';font-weight:700;font-size:16px;color:var(--mut2);letter-spacing:1px;text-transform:uppercase;}
+
+/* ---------- footer ---------- */
+.foot{text-align:center;padding:30px 20px 50px;border-top:1px solid var(--line);margin-top:30px;}
+.foot-26{font-family:'Anton';font-size:30px;letter-spacing:2px;color:var(--mut2);}
+.foot-26 b{color:var(--gold);}
+.foot-note{margin-top:8px;color:var(--mut2);font-size:13px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.5;}
+
+/* ---------- reschedule ---------- */
+.reschedule-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px;}
+.reschedule-table thead th{
+  font-family:'Barlow Condensed';font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+  font-size:12px;color:var(--mut2);text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);background:#0c0e12;
+}
+.reschedule-table tbody td{
+  padding:12px;text-align:left;border-bottom:1px solid #1a1d24;vertical-align:middle;
+}
+.reschedule-table tbody tr:last-child td{border-bottom:none;}
+.rs-match{display:flex;align-items:center;gap:12px;min-width:0;}
+.rs-flag{font-size:18px;flex:0 0 auto;}
+.rs-teams{display:flex;flex-direction:column;min-width:0;}
+.rs-vs{font-family:'Barlow Condensed';font-weight:600;font-size:11px;color:var(--mut2);text-transform:uppercase;}
+.rs-team{font-family:'Barlow Condensed';font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rs-date-input{
+  background:#0e1015;border:1px solid var(--line);border-radius:8px;
+  color:var(--txt);padding:7px 11px;font-size:13px;font-weight:500;
+}
+.rs-date-input:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(233,196,106,.15);}
+.rs-date-label{font-family:'Barlow Condensed';font-weight:600;font-size:12px;color:var(--mut);letter-spacing:.3px;}
+
+@media(max-width:560px){
+  .mc-body{grid-template-columns:1fr;}
+  .mc-vs{padding:3px 0;}
+  .cal-grid{grid-template-columns:1fr;}
+  .reschedule-table{font-size:12px;}
+  .reschedule-table thead th,.reschedule-table tbody td{padding:8px;}
+  .rs-date-input{padding:6px 9px;font-size:12px;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js"></script>
+
+<!-- ============ data ============ -->
+<script>
+const GROUPS = {
+  A: { id: 'A', name: 'Grupa A', color: '#16c47f', glow: 'rgba(22,196,127,.45)' },
+  B: { id: 'B', name: 'Grupa B', color: '#ff3b5c', glow: 'rgba(255,59,92,.45)' },
+  D: { id: 'D', name: 'Grupa D', color: '#3b82f6', glow: 'rgba(59,130,246,.45)' },
+  F: { id: 'F', name: 'Grupa F', color: '#a3e635', glow: 'rgba(163,230,53,.45)' },
+};
+const TEAMS = {
+  A_MX: { id: 'A_MX', group: 'A', flag: '🇲🇽', country: 'Mexic',         p: ['', 'Jucător 2'] },
+  A_ZA: { id: 'A_ZA', group: 'A', flag: '🇿🇦', country: 'Africa de Sud' },
+  A_KR: { id: 'A_KR', group: 'A', flag: '🇰🇷', country: 'Coreea de Sud' },
+  A_CZ: { id: 'A_CZ', group: 'A', flag: '🇨🇿', country: 'Cehia',         p: ['', 'Jucător 2'] },
+  B_QA: { id: 'B_QA', group: 'B', flag: '🇶🇦', country: 'Qatar',           p: ['', 'Jucător 2'] },
+  B_CH: { id: 'B_CH', group: 'B', flag: '🇨🇭', country: 'Elveția',         p: ['', 'Jucător 2'] },
+  B_CA: { id: 'B_CA', group: 'B', flag: '🇨🇦', country: 'Canada',          p: ['', 'Jucător 2'] },
+  B_BA: { id: 'B_BA', group: 'B', flag: '🇧🇦', country: 'Bosnia și Herț.' },
+  D_US: { id: 'D_US', group: 'D', flag: '🇺🇸', country: 'S.U.A.',     p: ['', 'Jucător 2'] },
+  D_PY: { id: 'D_PY', group: 'D', flag: '🇵🇾', country: 'Paraguay',   p: ['', 'Jucător 2'] },
+  D_AU: { id: 'D_AU', group: 'D', flag: '🇦🇺', country: 'Australia',  p: ['', 'Jucător 2'] },
+  D_TR: { id: 'D_TR', group: 'D', flag: '🇹🇷', country: 'Türkiye',    p: ['', 'Jucător 2'] },
+  F_NL: { id: 'F_NL', group: 'F', flag: '🇳🇱', country: 'Olanda',   p: ['', 'Jucător 2'] },
+  F_JP: { id: 'F_JP', group: 'F', flag: '🇯🇵', country: 'Japonia',  p: ['', 'Jucător 2'] },
+  F_SE: { id: 'F_SE', group: 'F', flag: '🇸🇪', country: 'Suedia',   p: ['', 'Jucător 2'] },
+  F_TN: { id: 'F_TN', group: 'F', flag: '🇹🇳', country: 'Tunisia',  p: ['', 'Jucător 2'] },
+};
+const MATCHES = [
+  { id: 'm01', date: '2026-06-10', label: 'Miercuri 10 Iunie',  group: 'B', home: 'B_QA', away: 'B_CH' },
+  { id: 'm02', date: '2026-06-11', label: 'Joi 11 Iunie',       group: 'A', home: 'A_MX', away: 'A_ZA' },
+  { id: 'm03', date: '2026-06-11', label: 'Joi 11 Iunie',       group: 'A', home: 'A_KR', away: 'A_CZ' },
+  { id: 'm04', date: '2026-06-12', label: 'Vineri 12 Iunie',    group: 'B', home: 'B_CA', away: 'B_BA', time: '17:00' },
+  { id: 'm05', date: '2026-06-12', label: 'Vineri 12 Iunie',    group: 'D', home: 'D_US', away: 'D_PY' },
+  { id: 'm06', date: '2026-06-14', label: 'Duminică 14 Iunie',  group: 'D', home: 'D_AU', away: 'D_TR' },
+  { id: 'm07', date: '2026-06-14', label: 'Duminică 14 Iunie',  group: 'F', home: 'F_NL', away: 'F_JP' },
+  { id: 'm08', date: '2026-06-17', label: 'Miercuri 17 Iunie',  group: 'F', home: 'F_SE', away: 'F_TN' },
+  { id: 'm09', date: '2026-06-18', label: 'Joi 18 Iunie',       group: 'A', home: 'A_CZ', away: 'A_ZA' },
+  { id: 'm10', date: '2026-06-18', label: 'Joi 18 Iunie',       group: 'A', home: 'A_MX', away: 'A_KR' },
+  { id: 'm11', date: '2026-06-18', label: 'Joi 18 Iunie',       group: 'B', home: 'B_CH', away: 'B_BA' },
+  { id: 'm12', date: '2026-06-18', label: 'Joi 18 Iunie',       group: 'B', home: 'B_CA', away: 'B_QA' },
+  { id: 'm13', date: '2026-06-19', label: 'Vineri 19 Iunie',    group: 'D', home: 'D_US', away: 'D_AU' },
+  { id: 'm14', date: '2026-06-20', label: 'Sâmbătă 20 Iunie',   group: 'D', home: 'D_TR', away: 'D_PY' },
+  { id: 'm15', date: '2026-06-20', label: 'Sâmbătă 20 Iunie',   group: 'F', home: 'F_NL', away: 'F_SE' },
+  { id: 'm16', date: '2026-06-20', label: 'Sâmbătă 20 Iunie',   group: 'F', home: 'F_TN', away: 'F_JP' },
+  { id: 'm17', date: '2026-06-24', label: 'Miercuri 24 Iunie',  group: 'A', home: 'A_CZ', away: 'A_MX' },
+  { id: 'm18', date: '2026-06-24', label: 'Miercuri 24 Iunie',  group: 'A', home: 'A_ZA', away: 'A_KR' },
+  { id: 'm19', date: '2026-06-24', label: 'Miercuri 24 Iunie',  group: 'B', home: 'B_CH', away: 'B_CA' },
+  { id: 'm20', date: '2026-06-24', label: 'Miercuri 24 Iunie',  group: 'B', home: 'B_BA', away: 'B_QA' },
+  { id: 'm21', date: '2026-06-25', label: 'Joi 25 Iunie',       group: 'D', home: 'D_US', away: 'D_TR' },
+  { id: 'm22', date: '2026-06-25', label: 'Joi 25 Iunie',       group: 'D', home: 'D_AU', away: 'D_PY' },
+  { id: 'm23', date: '2026-06-25', label: 'Joi 25 Iunie',       group: 'F', home: 'F_JP', away: 'F_SE' },
+  { id: 'm24', date: '2026-06-25', label: 'Joi 25 Iunie',       group: 'F', home: 'F_TN', away: 'F_NL' },
+];
+const KO = {
+  qf: [
+    { id: 'qf1', a: { seed: 1, grp: 'A' }, b: { seed: 2, grp: 'B' } },
+    { id: 'qf2', a: { seed: 1, grp: 'D' }, b: { seed: 2, grp: 'F' } },
+    { id: 'qf3', a: { seed: 1, grp: 'F' }, b: { seed: 2, grp: 'D' } },
+    { id: 'qf4', a: { seed: 1, grp: 'B' }, b: { seed: 2, grp: 'A' } },
+  ],
+  sf: [
+    { id: 'sf1', a: { from: 'qf1' }, b: { from: 'qf2' } },
+    { id: 'sf2', a: { from: 'qf3' }, b: { from: 'qf4' } },
+  ],
+  final: { id: 'final', a: { from: 'sf1' }, b: { from: 'sf2' } },
+  bronze: { id: 'bronze', a: { fromLoser: 'sf1' }, b: { fromLoser: 'sf2' } },
+};
+const GROUP_ORDER = ['A', 'B', 'D', 'F'];
+window.TV = { GROUPS, TEAMS, MATCHES, KO, GROUP_ORDER };
+</script>
+
+<!-- ============ firebase init ============ -->
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAbSXfbaLd65gkXRHPIMaCFSR9vOgoZYHU",
+  authDomain: "fifa-tdv-2026.firebaseapp.com",
+  databaseURL: "https://fifa-tdv-2026-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "fifa-tdv-2026",
+  storageBucket: "fifa-tdv-2026.firebasestorage.app",
+  messagingSenderId: "131998574488",
+  appId: "1:131998574488:web:c8ec5d6a5ffbe1d3006ded",
+  measurementId: "G-8VZ53EQF8F"
+};
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  window.firebaseDb = firebase.database();
+  window.firebaseReady = true;
+} catch (e) {
+  console.warn('Firebase init skipped - using localStorage only');
+  window.firebaseReady = false;
+}
+</script>
+
+<!-- ============ engine ============ -->
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo } = React;
+const TVD = window.TV;
+const STORE_KEY = 'cupatv:v2';
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { results: {}, ko: {}, schedule: {} };
+}
+
+function useTournament() {
+  const [state, setState] = useState(loadState);
+  const [synced, setSynced] = useState(false);
+
+  useEffect(() => {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+
+    if (window.firebaseReady && synced) {
+      window.firebaseDb.ref('state').set(state).catch(e => console.log('Firebase sync failed:', e));
+    }
+  }, [state, synced]);
+
+  useEffect(() => {
+    if (!window.firebaseReady) {
+      setSynced(true);
+      return;
+    }
+
+    window.firebaseDb.ref('state').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) setState(data);
+      setSynced(true);
+    });
+
+    return () => {
+      if (window.firebaseDb) window.firebaseDb.ref('state').off();
+    };
+  }, []);
+
+  const setWinner = useCallback((matchId, side) => {
+    setState(s => {
+      const results = { ...s.results };
+      const cur = results[matchId] || {};
+      if (side === null) {
+        const { winner, ...rest } = cur;
+        if (Object.keys(rest).length) results[matchId] = rest; else delete results[matchId];
+      } else {
+        results[matchId] = { ...cur, winner: side };
+      }
+      return { ...s, results };
+    });
+  }, []);
+
+  const setScore = useCallback((matchId, score) => {
+    setState(s => {
+      const results = { ...s.results };
+      const cur = results[matchId] || {};
+      if (!score) {
+        const { score: _, ...rest } = cur;
+        if (Object.keys(rest).length) results[matchId] = rest; else delete results[matchId];
+      } else {
+        results[matchId] = { ...cur, score };
+      }
+      return { ...s, results };
+    });
+  }, []);
+
+  const setKO = useCallback((koId, side) => {
+    setState(s => {
+      const ko = { ...s.ko };
+      if (side === null) delete ko[koId]; else ko[koId] = side;
+      return { ...s, ko };
+    });
+  }, []);
+
+  const setSchedule = useCallback((matchId, newDate) => {
+    setState(s => {
+      const schedule = { ...s.schedule };
+      if (!newDate) delete schedule[matchId]; else schedule[matchId] = newDate;
+      return { ...s, schedule };
+    });
+  }, []);
+
+  const resetAll = useCallback(() => setState({ results: {}, ko: {}, schedule: {} }), []);
+  return { state, setWinner, setScore, setKO, setSchedule, resetAll };
+}
+
+function standingsFor(groupId, results) {
+  const teams = Object.values(TVD.TEAMS).filter(t => t.group === groupId);
+  const rows = {};
+  teams.forEach(t => { rows[t.id] = { team: t, P: 0, W: 0, L: 0, pts: 0, h2h: {} }; });
+  const groupMatches = TVD.MATCHES.filter(m => m.group === groupId);
+  groupMatches.forEach(m => {
+    const r = results[m.id];
+    if (!r || !r.winner) return;
+    const winId = r.winner === 'home' ? m.home : m.away;
+    const loseId = r.winner === 'home' ? m.away : m.home;
+    rows[winId].P++; rows[winId].W++; rows[winId].pts += 3;
+    rows[loseId].P++; rows[loseId].L++;
+    rows[winId].h2h[loseId] = 1;
+  });
+  const arr = Object.values(rows);
+  arr.sort((a, b) => {
+    if (b.pts !== a.pts) return b.pts - a.pts;
+    if (b.W !== a.W) return b.W - a.W;
+    if (a.h2h[b.team.id]) return -1;
+    if (b.h2h[a.team.id]) return 1;
+    return a.team.country.localeCompare(b.team.country, 'ro');
+  });
+  return arr;
+}
+
+function groupComplete(groupId, results) {
+  return TVD.MATCHES.filter(m => m.group === groupId)
+    .every(m => results[m.id] && results[m.id].winner);
+}
+
+function resolveSlot(slot, results, ko) {
+  if (slot.grp) {
+    const st = standingsFor(slot.grp, results);
+    const row = st[slot.seed - 1];
+    if (!groupComplete(slot.grp, results)) return { teamId: null, label: `${slot.seed}${slot.grp}`, provisional: row ? row.team.id : null };
+    return { teamId: row ? row.team.id : null, label: `${slot.seed}${slot.grp}` };
+  }
+  if (slot.from) {
+    const tid = koWinner(slot.from, results, ko);
+    return { teamId: tid, label: 'Câșt. ' + koBaseName(slot.from) };
+  }
+  if (slot.fromLoser) {
+    const tid = koLoser(slot.fromLoser, results, ko);
+    return { teamId: tid, label: 'Înv. ' + koBaseName(slot.fromLoser) };
+  }
+  return { teamId: null, label: '?' };
+}
+
+function koMatchById(id) {
+  if (id === 'final') return TVD.KO.final;
+  if (id === 'bronze') return TVD.KO.bronze;
+  return [...TVD.KO.qf, ...TVD.KO.sf].find(m => m.id === id);
+}
+function koBaseName(id) {
+  const map = { qf1: 'Sfert 1', qf2: 'Sfert 2', qf3: 'Sfert 3', qf4: 'Sfert 4', sf1: 'Semifinala 1', sf2: 'Semifinala 2' };
+  return map[id] || id;
+}
+function koWinner(koId, results, ko) {
+  const m = koMatchById(koId);
+  const side = ko[koId];
+  if (!side) return null;
+  const slot = side === 'a' ? m.a : m.b;
+  return resolveSlot(slot, results, ko).teamId;
+}
+function koLoser(koId, results, ko) {
+  const m = koMatchById(koId);
+  const side = ko[koId];
+  if (!side) return null;
+  const slot = side === 'a' ? m.b : m.a;
+  return resolveSlot(slot, results, ko).teamId;
+}
+window.ENGINE = { useTournament, standingsFor, groupComplete, resolveSlot, koMatchById, koWinner, koLoser };
+</script>
+
+<!-- ============ components ============ -->
+<script type="text/babel">
+function Players({ team }) {
+  return <div className="players">{team.p[0]}{team.p[1]}</div>;
+}
+
+function TeamRow({ team, side, winnerSide, decided, color, onPick }) {
+  const isWin = winnerSide === side;
+  const isLose = decided && !isWin;
+  const cls = 'mc-team' + (isWin ? ' win' : '') + (isLose ? ' lose' : '');
+  return (
+    <button
+      className={cls}
+      style={isWin ? { '--win': color } : undefined}
+      onClick={() => onPick(isWin ? null : side)}
+      title="Marchează câștigătorul"
+    >
+      <span className="mc-flag">{team.flag}</span>
+      <span className="mc-tn">
+        <span className="mc-country">{team.country}</span>
+      </span>
+      <span className="mc-check" aria-hidden="true">✓</span>
+    </button>
+  );
+}
+
+function MatchCard({ match, store, showDate }) {
+  const { state, setWinner, setScore } = store;
+  const r = state.results[match.id] || {};
+  const home = TEAMS[match.home], away = TEAMS[match.away];
+  const color = GROUPS[match.group].color;
+  const decided = !!r.winner;
+  return (
+    <div className={'matchcard' + (decided ? ' done' : '')}>
+      <div className="mc-head">
+        <span className="mc-grp" style={{ '--c': color }}>Gr. {match.group}</span>
+        {showDate && <span className="mc-date">{match.label}{match.time ? '' + match.time : ''}</span>}
+        {!showDate && match.time && <span className="mc-date">{match.time}</span>}
+        {decided
+          ? <span className="mc-status done">Finalizat</span>
+          : <span className="mc-status">De jucat</span>}
+      </div>
+      <div className="mc-body">
+        <TeamRow team={home} side="home" winnerSide={r.winner} decided={decided} color={color}
+                 onPick={(s) => setWinner(match.id, s)} />
+        <div className="mc-vs">vs</div>
+        <TeamRow team={away} side="away" winnerSide={r.winner} decided={decided} color={color}
+                 onPick={(s) => setWinner(match.id, s)} />
+      </div>
+      <div className="mc-foot">
+        <input
+          className="mc-score"
+          type="text"
+          inputMode="text"
+          placeholder="scor (opțional)"
+          value={r.score || ''}
+          onChange={(e) => setScore(match.id, e.target.value)}
+        />
+        {decided && (
+          <button className="mc-reset" onClick={() => setWinner(match.id, null)}>↺ resetează</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FlagTile({ groupId }) {
+  const teams = Object.values(TEAMS).filter(t => t.group === groupId);
+  return (
+    <div className="flagtile" style={{ '--c': GROUPS[groupId].color }}>
+      {teams.map(t => <span key={t.id} className="flagtile-f">{t.flag}</span>)}
+    </div>
+  );
+}
+
+function Standings({ groupId, store }) {
+  const rows = window.ENGINE.standingsFor(groupId, store.state.results);
+  const complete = window.ENGINE.groupComplete(groupId, store.state.results);
+  const color = GROUPS[groupId].color;
+  return (
+    <table className="standings">
+      <thead>
+        <tr>
+          <th className="st-pos">#</th>
+          <th className="st-team">Echipă</th>
+          <th>J</th><th>V</th><th>Î</th><th className="st-pts">Pct</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, i) => {
+          const qual = i < 2;
+          return (
+            <tr key={row.team.id} className={qual ? 'qual' : ''} style={qual ? { '--c': color } : undefined}>
+              <td className="st-pos">{i + 1}</td>
+              <td className="st-team">
+                <span className="st-flag">{row.team.flag}</span>
+                <span className="st-name">
+                  <span className="st-country">{row.team.country}</span>
+                </span>
+                {qual && complete && <span className="st-badge" style={{ '--c': color }}>calificat</span>}
+              </td>
+              <td>{row.P}</td>
+              <td className="st-w">{row.W}</td>
+              <td>{row.L}</td>
+              <td className="st-pts">{row.pts}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+
+function GroupCard({ groupId, store }) {
+  const g = GROUPS[groupId];
+  const matches = window.TV.MATCHES.filter(m => m.group === groupId);
+  const done = matches.filter(m => (store.state.results[m.id] || {}).winner).length;
+  return (
+    <section className="groupcard" style={{ '--c': g.color, '--glow': g.glow }}>
+      <header className="gc-head">
+        <FlagTile groupId={groupId} />
+        <div className="gc-title">
+          <h2>{g.name}</h2>
+          <span className="gc-prog">{done}/{matches.length} meciuri</span>
+        </div>
+      </header>
+      <Standings groupId={groupId} store={store} />
+      <div className="gc-matches">
+        <div className="gc-matches-label">Meciuri</div>
+        {matches.map(m => <MatchCard key={m.id} match={m} store={store} showDate={true} />)}
+      </div>
+    </section>
+  );
+}
+
+Object.assign(window, { Players, TeamRow, MatchCard, FlagTile, Standings, GroupCard });
+</script>
+
+<!-- ============ bracket ============ -->
+<script type="text/babel">
+const E = window.ENGINE;
+
+function KOSlot({ slot, store, koId, side, chosen }) {
+  const res = E.resolveSlot(slot, store.state.results, store.state.ko);
+  const team = res.teamId ? window.TV.TEAMS[res.teamId] : null;
+  const isWin = chosen === side && !!team;
+  const isLose = chosen && chosen !== side && !!team;
+  const provisional = !team && res.provisional ? window.TV.TEAMS[res.provisional] : null;
+  const cls = 'ko-slot' + (isWin ? ' win' : '') + (isLose ? ' lose' : '') + (!team ? ' empty' : '');
+  return (
+    <button
+      className={cls}
+      disabled={!team}
+      onClick={() => team && store.setKO(koId, isWin ? null : side)}
+      title={team ? 'Marchează câștigătorul' : 'Se completează din clasament'}
+    >
+      {team ? (
+        <>
+          <span className="ko-flag">{team.flag}</span>
+          <span className="ko-tn">
+            <span className="ko-country">{team.country}</span>
+          </span>
+          <span className="ko-check">✓</span>
+        </>
+      ) : (
+        <>
+          <span className="ko-seed">{res.label}</span>
+          {provisional && <span className="ko-prov">{provisional.flag} {provisional.country}provizoriu</span>}
+        </>
+      )}
+    </button>
+  );
+}
+
+function KOCard({ koId, store, label }) {
+  const m = E.koMatchById(koId);
+  const chosen = store.state.ko[koId];
+  return (
+    <div className="kocard">
+      {label && <div className="ko-label">{label}</div>}
+      <div className="ko-pair">
+        <KOSlot slot={m.a} side="a" koId={koId} store={store} chosen={chosen} />
+        <div className="ko-mid"><span>vs</span></div>
+        <KOSlot slot={m.b} side="b" koId={koId} store={store} chosen={chosen} />
+      </div>
+    </div>
+  );
+}
+
+function Trophy({ store }) {
+  const champId = E.koWinner('final', store.state.results, store.state.ko);
+  const champ = champId ? window.TV.TEAMS[champId] : null;
+  return (
+    <div className="trophy-wrap">
+      <div className="trophy-glow" />
+      <div className="trophy">🏆</div>
+      <div className="champ-label">Campion</div>
+      {champ ? (
+        <div className="champ">
+          <span className="champ-flag">{champ.flag}</span>
+          <span className="champ-country">{champ.country}</span>
+        </div>
+      ) : (
+        <div className="champ champ-tbd">FIFA Cup TradeVille</div>
+      )}
+    </div>
+  );
+}
+
+function Bracket({ store }) {
+  return (
+    <div className="bracket-scroll">
+      <div className="bracket">
+        {/* LEFT QF */}
+        <div className="bk-col qf-col">
+          <KOCard koId="qf1" store={store} label="Sfert 1" />
+          <KOCard koId="qf2" store={store} label="Sfert 2" />
+        </div>
+        <div className="bk-conn left"><div className="bracket-shape" /></div>
+
+        {/* LEFT SF */}
+        <div className="bk-col sf-col">
+          <KOCard koId="sf1" store={store} label="Semifinala 1" />
+        </div>
+        <div className="bk-conn left flat"><div className="line" /></div>
+
+        {/* CENTER */}
+        <div className="bk-center">
+          <div className="final-top">
+            <div className="final-label">Marea Finală</div>
+            <KOCard koId="final" store={store} />
+          </div>
+          <Trophy store={store} />
+          <div className="bronze-bot">
+            <div className="final-label bronze">Finala micăLocul 3</div>
+            <KOCard koId="bronze" store={store} />
+          </div>
+        </div>
+
+        {/* RIGHT SF */}
+        <div className="bk-conn right flat"><div className="line" /></div>
+        <div className="bk-col sf-col">
+          <KOCard koId="sf2" store={store} label="Semifinala 2" />
+        </div>
+
+        {/* RIGHT QF */}
+        <div className="bk-conn right"><div className="bracket-shape" /></div>
+        <div className="bk-col qf-col">
+          <KOCard koId="qf3" store={store} label="Sfert 3" />
+          <KOCard koId="qf4" store={store} label="Sfert 4" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { KOSlot, KOCard, Trophy, Bracket });
+</script>
+
+<!-- ============ app ============ -->
+<script type="text/babel">
+const { useState: useStateA } = React;
+
+function Calendar({ store }) {
+  const dates = [];
+  const byDate = {};
+  window.TV.MATCHES.forEach(m => {
+    const actualDate = store.state.schedule[m.id] || m.date;
+    if (!byDate[actualDate]) { byDate[actualDate] = { label: m.label, items: [] }; dates.push(actualDate); }
+    byDate[actualDate].items.push(m);
+  });
+  dates.sort();
+  return (
+    <div className="calendar">
+      {dates.map(d => (
+        <section className="cal-day" key={d}>
+          <div className="cal-daylabel">
+            <span className="cal-dot" />{byDate[d].label}
+            <span className="cal-count">{byDate[d].items.length} {byDate[d].items.length === 1 ? 'meci' : 'meciuri'}</span>
+          </div>
+          <div className="cal-grid">
+            {byDate[d].items.map(m => <MatchCard key={m.id} match={m} store={store} showDate={false} />)}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+function Groups({ store }) {
+  return (
+    <div className="groups-grid">
+      {window.TV.GROUP_ORDER.map(g => <GroupCard key={g} groupId={g} store={store} />)}
+    </div>
+  );
+}
+
+function Reschedule({ store }) {
+  return (
+    <div className="view">
+      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <h2 style={{ fontSize: '24px', marginBottom: '20px', color: 'var(--txt)' }}>Reschedule Matches</h2>
+        <table className="reschedule-table">
+          <thead>
+            <tr>
+              <th>Meci</th>
+              <th style={{ width: '200px' }}>Data Inițială</th>
+              <th style={{ width: '200px' }}>Data Nouă</th>
+            </tr>
+          </thead>
+          <tbody>
+            {window.TV.MATCHES.map(m => {
+              const home = TEAMS[m.home];
+              const away = TEAMS[m.away];
+              const actualDate = store.state.schedule[m.id] || m.date;
+              return (
+                <tr key={m.id}>
+                  <td>
+                    <div className="rs-match">
+                      <span className="rs-flag">{home.flag}</span>
+                      <div className="rs-teams">
+                        <div className="rs-team">{home.country}</div>
+                        <div className="rs-vs">vs</div>
+                        <div className="rs-team">{away.country}</div>
+                      </div>
+                      <span className="rs-flag">{away.flag}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="rs-date-label">{m.label}</div>
+                  </td>
+                  <td>
+                    <input
+                      className="rs-date-input"
+                      type="date"
+                      value={actualDate}
+                      onChange={(e) => store.setSchedule(m.id, e.target.value)}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const store = window.ENGINE.useTournament();
+  const [tab, setTab] = useStateA('grupe');
+  const [key, setKey] = useStateA(0);
+  const total = window.TV.MATCHES.length;
+  const done = window.TV.MATCHES.filter(m => (store.state.results[m.id] || {}).winner).length;
+
+  const onReset = () => {
+    if (window.confirm('Resetezi toate rezultatele și bracketul? Acțiunea nu poate fi anulată.')) store.resetAll();
+  };
+
+  return (
+    <div className="app">
+      <div className="bg-orbs" aria-hidden="true" />
+      <header className="topbar">
+        <div className="brand">
+          <span className="brand-mark">⚽</span>
+          <span className="brand-name">FIFA Cup 2026</span>
+        </div>
+        <div className="topbar-meta">
+          <span className="meta-prog">{done}<span>/{total}</span> meciuri jucate</span>
+          <button className="btn-reset" onClick={onReset} title="Resetează tot">Resetează</button>
+        </div>
+      </header>
+      <div className="hero">
+        <div className="hero-kicker">10 – 25 Iunie 202616 echipe4 grupe</div>
+        <h1 className="hero-title">FIFA CUP<br /><span>TRADEVILLE</span></h1>
+        <div className="hero-sub">Turneul perechilorgrupe + faza eliminatorie</div>
+      </div>
+      <nav className="tabs">
+        <button className={tab === 'grupe' ? 'on' : ''} onClick={() => setTab('grupe')}>Grupe</button>
+        <button className={tab === 'calendar' ? 'on' : ''} onClick={() => setTab('calendar')}>Calendar</button>
+        <button className={tab === 'bracket' ? 'on' : ''} onClick={() => setTab('bracket')}>Faza eliminatorie</button>
+        <button className={tab === 'reschedule' ? 'on' : ''} onClick={() => setTab('reschedule')}>Reprogramare</button>
+      </nav>
+      <main>
+        {tab === 'grupe' && <div className="view"><Groups store={store} /></div>}
+        {tab === 'calendar' && <Calendar store={store} />}
+        {tab === 'bracket' && <div className="view"><Bracket store={store} /></div>}
+        {tab === 'reschedule' && <Reschedule store={store} />}
+      </main>
+      <footer className="foot">
+        <div className="foot-26">FIFA CUP <b>26</b></div>
+        <div className="foot-note">Marchează câștigătorul fiecărui meci — clasamentele și bracketul se completează automat. Progresul se sincronizează în timp real.</div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
