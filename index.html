@@ -516,7 +516,7 @@ function loadState() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return { results: {}, ko: {} };
+  return { results: {}, ko: {}, schedule: {} };
 }
 
 function useTournament() {
@@ -564,9 +564,17 @@ function useTournament() {
     });
   }, []);
 
-  const resetAll = useCallback(() => setState({ results: {}, ko: {} }), []);
+  const setSchedule = useCallback((matchId, newDate) => {
+    setState(s => {
+      const schedule = { ...s.schedule };
+      if (!newDate) delete schedule[matchId]; else schedule[matchId] = newDate;
+      return { ...s, schedule };
+    });
+  }, []);
 
-  return { state, setWinner, setScore, setKO, resetAll };
+  const resetAll = useCallback(() => setState({ results: {}, ko: {}, schedule: {} }), []);
+
+  return { state, setWinner, setScore, setKO, setSchedule, resetAll };
 }
 
 /* ---- Standings ---------------------------------------------------- */
