@@ -326,12 +326,6 @@ input{font-family:inherit;}
 .champ-players{font-size:12px;color:var(--mut);font-weight:500;}
 .champ-tbd{font-family:'Barlow Condensed';font-weight:700;font-size:16px;color:var(--mut2);letter-spacing:1px;text-transform:uppercase;}
 
-/* ---------- footer ---------- */
-.foot{text-align:center;padding:30px 20px 50px;border-top:1px solid var(--line);margin-top:30px;}
-.foot-26{font-family:'Anton';font-size:30px;letter-spacing:2px;color:var(--mut2);}
-.foot-26 b{color:var(--gold);}
-.foot-note{margin-top:8px;color:var(--mut2);font-size:13px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.5;}
-
 /* ---------- reschedule ---------- */
 .reschedule-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:12px;}
 .reschedule-table thead th{
@@ -357,6 +351,12 @@ input{font-family:inherit;}
 .rs-date-input:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(233,196,106,.15);}
 .rs-date-label{font-family:'Barlow Condensed';font-weight:600;font-size:12px;color:var(--mut);letter-spacing:.3px;}
 
+/* ---------- footer ---------- */
+.foot{text-align:center;padding:30px 20px 50px;border-top:1px solid var(--line);margin-top:30px;}
+.foot-26{font-family:'Anton';font-size:30px;letter-spacing:2px;color:var(--mut2);}
+.foot-26 b{color:var(--gold);}
+.foot-note{margin-top:8px;color:var(--mut2);font-size:13px;max-width:560px;margin-left:auto;margin-right:auto;line-height:1.5;}
+
 @media(max-width:560px){
   .mc-body{grid-template-columns:1fr;}
   .mc-vs{padding:3px 0;}
@@ -376,58 +376,110 @@ input{font-family:inherit;}
 <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.2.0/firebase-database.js"></script>
 
+<!-- ============ firebase init ============ -->
+<script>
+try {
+  const firebaseConfig = {
+  apiKey: "AIzaSyAbSXfbaLd65gkXRHPIMaCFSR9vOgoZYHU",
+  authDomain: "fifa-tdv-2026.firebaseapp.com",
+  databaseURL: "https://fifa-tdv-2026-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "fifa-tdv-2026",
+  storageBucket: "fifa-tdv-2026.firebasestorage.app",
+  messagingSenderId: "131998574488",
+  appId: "1:131998574488:web:c8ec5d6a5ffbe1d3006ded",
+  measurementId: "G-8VZ53EQF8F"
+};
+  firebase.initializeApp(firebaseConfig);
+  window.firebaseDb = firebase.database();
+  window.firebaseReady = true;
+} catch (e) {
+  console.warn('Firebase init skipped - using localStorage only');
+  window.firebaseReady = false;
+}
+</script>
+
 <!-- ============ data ============ -->
 <script>
+/* ====================================================================
+   FIFA CUP TRADEVILLE — tournament data
+   16 teams (pairs) · 4 groups (A, B, D, F) · 24 group matches
+   Knockout: top 2 per group -> QF (8) -> SF -> Final + Bronze
+   ==================================================================== */
+
+// Group accent colors (echo the reference World Cup bracket)
 const GROUPS = {
   A: { id: 'A', name: 'Grupa A', color: '#16c47f', glow: 'rgba(22,196,127,.45)' },
   B: { id: 'B', name: 'Grupa B', color: '#ff3b5c', glow: 'rgba(255,59,92,.45)' },
   D: { id: 'D', name: 'Grupa D', color: '#3b82f6', glow: 'rgba(59,130,246,.45)' },
   F: { id: 'F', name: 'Grupa F', color: '#a3e635', glow: 'rgba(163,230,53,.45)' },
 };
+
+// Teams. id = GROUP_CC. p = [player1, player2]
 const TEAMS = {
-  A_MX: { id: 'A_MX', group: 'A', flag: '🇲🇽', country: 'Mexic',         p: ['', 'Jucător 2'] },
-  A_ZA: { id: 'A_ZA', group: 'A', flag: '🇿🇦', country: 'Africa de Sud' },
-  A_KR: { id: 'A_KR', group: 'A', flag: '🇰🇷', country: 'Coreea de Sud' },
-  A_CZ: { id: 'A_CZ', group: 'A', flag: '🇨🇿', country: 'Cehia',         p: ['', 'Jucător 2'] },
-  B_QA: { id: 'B_QA', group: 'B', flag: '🇶🇦', country: 'Qatar',           p: ['', 'Jucător 2'] },
-  B_CH: { id: 'B_CH', group: 'B', flag: '🇨🇭', country: 'Elveția',         p: ['', 'Jucător 2'] },
-  B_CA: { id: 'B_CA', group: 'B', flag: '🇨🇦', country: 'Canada',          p: ['', 'Jucător 2'] },
-  B_BA: { id: 'B_BA', group: 'B', flag: '🇧🇦', country: 'Bosnia și Herț.' },
-  D_US: { id: 'D_US', group: 'D', flag: '🇺🇸', country: 'S.U.A.',     p: ['', 'Jucător 2'] },
-  D_PY: { id: 'D_PY', group: 'D', flag: '🇵🇾', country: 'Paraguay',   p: ['', 'Jucător 2'] },
-  D_AU: { id: 'D_AU', group: 'D', flag: '🇦🇺', country: 'Australia',  p: ['', 'Jucător 2'] },
-  D_TR: { id: 'D_TR', group: 'D', flag: '🇹🇷', country: 'Türkiye',    p: ['', 'Jucător 2'] },
-  F_NL: { id: 'F_NL', group: 'F', flag: '🇳🇱', country: 'Olanda',   p: ['', 'Jucător 2'] },
-  F_JP: { id: 'F_JP', group: 'F', flag: '🇯🇵', country: 'Japonia',  p: ['', 'Jucător 2'] },
-  F_SE: { id: 'F_SE', group: 'F', flag: '🇸🇪', country: 'Suedia',   p: ['', 'Jucător 2'] },
-  F_TN: { id: 'F_TN', group: 'F', flag: '🇹🇳', country: 'Tunisia',  p: ['', 'Jucător 2'] },
+  // Grupa A
+  A_MX: { id: 'A_MX', group: 'A', flag: '🇲🇽', country: 'Mexic',         p: ['Răzvan Lucăcel', 'Mihai Ologu'] },
+  A_ZA: { id: 'A_ZA', group: 'A', flag: '🇿🇦', country: 'Africa de Sud', p: ['Constantin Ionuț', 'Darius Dumitru'] },
+  A_KR: { id: 'A_KR', group: 'A', flag: '🇰🇷', country: 'Coreea de Sud', p: ['Adrian Vișan', 'Mihaela Mihailciuc'] },
+  A_CZ: { id: 'A_CZ', group: 'A', flag: '🇨🇿', country: 'Cehia',         p: ['Andrei Vălimăreanu', 'Andrei Peligrad'] },
+
+  // Grupa B
+  B_QA: { id: 'B_QA', group: 'B', flag: '🇶🇦', country: 'Qatar',           p: ['Robert Ioniță', 'Gabriel Șipoteanu'] },
+  B_CH: { id: 'B_CH', group: 'B', flag: '🇨🇭', country: 'Elveția',         p: ['Mădălin Neagu', 'Daniel Chirițoiu'] },
+  B_CA: { id: 'B_CA', group: 'B', flag: '🇨🇦', country: 'Canada',          p: ['Aurelian Fulga', 'Titel Zuda'] },
+  B_BA: { id: 'B_BA', group: 'B', flag: '🇧🇦', country: 'Bosnia și Herț.', p: ['Alexandru Dobre', 'Mihaela David'] },
+
+  // Grupa D
+  D_US: { id: 'D_US', group: 'D', flag: '🇺🇸', country: 'S.U.A.',     p: ['Cătălin Lefter', 'Nicoleta Crețu'] },
+  D_PY: { id: 'D_PY', group: 'D', flag: '🇵🇾', country: 'Paraguay',   p: ['Bogdan Marin', 'Claudiu Stan'] },
+  D_AU: { id: 'D_AU', group: 'D', flag: '🇦🇺', country: 'Australia',  p: ['Antonio Angheluță', 'Cristian Popescu'] },
+  D_TR: { id: 'D_TR', group: 'D', flag: '🇹🇷', country: 'Türkiye',    p: ['Sergiu Stanciu', 'Adrian Mădescu'] },
+
+  // Grupa F
+  F_NL: { id: 'F_NL', group: 'F', flag: '🇳🇱', country: 'Olanda',   p: ['Andrei Chirițoiu', 'Alexandru Trușcă'] },
+  F_JP: { id: 'F_JP', group: 'F', flag: '🇯🇵', country: 'Japonia',  p: ['Cristian Porumb', 'Aurelian Boldea'] },
+  F_SE: { id: 'F_SE', group: 'F', flag: '🇸🇪', country: 'Suedia',   p: ['Bogdan Melniciuc', 'Victor Tronciu'] },
+  F_TN: { id: 'F_TN', group: 'F', flag: '🇹🇳', country: 'Tunisia',  p: ['Radu Dăscălescu', 'Alex Nuță'] },
 };
+
+// Match schedule. Each: id, date (ISO), label (RO), time?, group, home, away
 const MATCHES = [
   { id: 'm01', date: '2026-06-10', label: 'Miercuri 10 Iunie',  group: 'B', home: 'B_QA', away: 'B_CH' },
+
   { id: 'm02', date: '2026-06-11', label: 'Joi 11 Iunie',       group: 'A', home: 'A_MX', away: 'A_ZA' },
   { id: 'm03', date: '2026-06-11', label: 'Joi 11 Iunie',       group: 'A', home: 'A_KR', away: 'A_CZ' },
+
   { id: 'm04', date: '2026-06-12', label: 'Vineri 12 Iunie',    group: 'B', home: 'B_CA', away: 'B_BA', time: '17:00' },
   { id: 'm05', date: '2026-06-12', label: 'Vineri 12 Iunie',    group: 'D', home: 'D_US', away: 'D_PY' },
+
   { id: 'm06', date: '2026-06-14', label: 'Duminică 14 Iunie',  group: 'D', home: 'D_AU', away: 'D_TR' },
   { id: 'm07', date: '2026-06-14', label: 'Duminică 14 Iunie',  group: 'F', home: 'F_NL', away: 'F_JP' },
+
   { id: 'm08', date: '2026-06-17', label: 'Miercuri 17 Iunie',  group: 'F', home: 'F_SE', away: 'F_TN' },
+
   { id: 'm09', date: '2026-06-18', label: 'Joi 18 Iunie',       group: 'A', home: 'A_CZ', away: 'A_ZA' },
   { id: 'm10', date: '2026-06-18', label: 'Joi 18 Iunie',       group: 'A', home: 'A_MX', away: 'A_KR' },
   { id: 'm11', date: '2026-06-18', label: 'Joi 18 Iunie',       group: 'B', home: 'B_CH', away: 'B_BA' },
   { id: 'm12', date: '2026-06-18', label: 'Joi 18 Iunie',       group: 'B', home: 'B_CA', away: 'B_QA' },
+
   { id: 'm13', date: '2026-06-19', label: 'Vineri 19 Iunie',    group: 'D', home: 'D_US', away: 'D_AU' },
+
   { id: 'm14', date: '2026-06-20', label: 'Sâmbătă 20 Iunie',   group: 'D', home: 'D_TR', away: 'D_PY' },
   { id: 'm15', date: '2026-06-20', label: 'Sâmbătă 20 Iunie',   group: 'F', home: 'F_NL', away: 'F_SE' },
   { id: 'm16', date: '2026-06-20', label: 'Sâmbătă 20 Iunie',   group: 'F', home: 'F_TN', away: 'F_JP' },
+
   { id: 'm17', date: '2026-06-24', label: 'Miercuri 24 Iunie',  group: 'A', home: 'A_CZ', away: 'A_MX' },
   { id: 'm18', date: '2026-06-24', label: 'Miercuri 24 Iunie',  group: 'A', home: 'A_ZA', away: 'A_KR' },
   { id: 'm19', date: '2026-06-24', label: 'Miercuri 24 Iunie',  group: 'B', home: 'B_CH', away: 'B_CA' },
   { id: 'm20', date: '2026-06-24', label: 'Miercuri 24 Iunie',  group: 'B', home: 'B_BA', away: 'B_QA' },
+
   { id: 'm21', date: '2026-06-25', label: 'Joi 25 Iunie',       group: 'D', home: 'D_US', away: 'D_TR' },
   { id: 'm22', date: '2026-06-25', label: 'Joi 25 Iunie',       group: 'D', home: 'D_AU', away: 'D_PY' },
   { id: 'm23', date: '2026-06-25', label: 'Joi 25 Iunie',       group: 'F', home: 'F_JP', away: 'F_SE' },
   { id: 'm24', date: '2026-06-25', label: 'Joi 25 Iunie',       group: 'F', home: 'F_TN', away: 'F_NL' },
 ];
+
+// Knockout structure. seeds resolved from group standings at runtime.
+// QF crosses winners/runners-up so group winners can only meet in the final.
 const KO = {
   qf: [
     { id: 'qf1', a: { seed: 1, grp: 'A' }, b: { seed: 2, grp: 'B' } },
@@ -442,37 +494,21 @@ const KO = {
   final: { id: 'final', a: { from: 'sf1' }, b: { from: 'sf2' } },
   bronze: { id: 'bronze', a: { fromLoser: 'sf1' }, b: { fromLoser: 'sf2' } },
 };
+
 const GROUP_ORDER = ['A', 'B', 'D', 'F'];
+
 window.TV = { GROUPS, TEAMS, MATCHES, KO, GROUP_ORDER };
-</script>
 
-<!-- ============ firebase init ============ -->
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyAbSXfbaLd65gkXRHPIMaCFSR9vOgoZYHU",
-  authDomain: "fifa-tdv-2026.firebaseapp.com",
-  databaseURL: "https://fifa-tdv-2026-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "fifa-tdv-2026",
-  storageBucket: "fifa-tdv-2026.firebasestorage.app",
-  messagingSenderId: "131998574488",
-  appId: "1:131998574488:web:c8ec5d6a5ffbe1d3006ded",
-  measurementId: "G-8VZ53EQF8F"
-};
-
-try {
-  firebase.initializeApp(firebaseConfig);
-  window.firebaseDb = firebase.database();
-  window.firebaseReady = true;
-} catch (e) {
-  console.warn('Firebase init skipped - using localStorage only');
-  window.firebaseReady = false;
-}
 </script>
 
 <!-- ============ engine ============ -->
 <script type="text/babel">
+/* ====================================================================
+   Tournament engine + persistent store (localStorage)
+   ==================================================================== */
 const { useState, useEffect, useCallback, useMemo } = React;
 const TVD = window.TV;
+
 const STORE_KEY = 'cupatv:v2';
 
 function loadState() {
@@ -480,38 +516,17 @@ function loadState() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return { results: {}, ko: {}, schedule: {} };
+  return { results: {}, ko: {} };
 }
 
 function useTournament() {
   const [state, setState] = useState(loadState);
-  const [synced, setSynced] = useState(false);
 
   useEffect(() => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }, [state]);
 
-    if (window.firebaseReady && synced) {
-      window.firebaseDb.ref('state').set(state).catch(e => console.log('Firebase sync failed:', e));
-    }
-  }, [state, synced]);
-
-  useEffect(() => {
-    if (!window.firebaseReady) {
-      setSynced(true);
-      return;
-    }
-
-    window.firebaseDb.ref('state').on('value', snapshot => {
-      const data = snapshot.val();
-      if (data) setState(data);
-      setSynced(true);
-    });
-
-    return () => {
-      if (window.firebaseDb) window.firebaseDb.ref('state').off();
-    };
-  }, []);
-
+  // Set / toggle winner of a group match. side = 'home' | 'away' | null
   const setWinner = useCallback((matchId, side) => {
     setState(s => {
       const results = { ...s.results };
@@ -540,6 +555,7 @@ function useTournament() {
     });
   }, []);
 
+  // Advance a knockout match. side = 'a' | 'b' | null
   const setKO = useCallback((koId, side) => {
     setState(s => {
       const ko = { ...s.ko };
@@ -548,22 +564,18 @@ function useTournament() {
     });
   }, []);
 
-  const setSchedule = useCallback((matchId, newDate) => {
-    setState(s => {
-      const schedule = { ...s.schedule };
-      if (!newDate) delete schedule[matchId]; else schedule[matchId] = newDate;
-      return { ...s, schedule };
-    });
-  }, []);
+  const resetAll = useCallback(() => setState({ results: {}, ko: {} }), []);
 
-  const resetAll = useCallback(() => setState({ results: {}, ko: {}, schedule: {} }), []);
-  return { state, setWinner, setScore, setKO, setSchedule, resetAll };
+  return { state, setWinner, setScore, setKO, resetAll };
 }
 
+/* ---- Standings ---------------------------------------------------- */
+// Returns ordered array of { team, P, W, L, pts } for a group.
 function standingsFor(groupId, results) {
   const teams = Object.values(TVD.TEAMS).filter(t => t.group === groupId);
   const rows = {};
   teams.forEach(t => { rows[t.id] = { team: t, P: 0, W: 0, L: 0, pts: 0, h2h: {} }; });
+
   const groupMatches = TVD.MATCHES.filter(m => m.group === groupId);
   groupMatches.forEach(m => {
     const r = results[m.id];
@@ -574,10 +586,12 @@ function standingsFor(groupId, results) {
     rows[loseId].P++; rows[loseId].L++;
     rows[winId].h2h[loseId] = 1;
   });
+
   const arr = Object.values(rows);
   arr.sort((a, b) => {
     if (b.pts !== a.pts) return b.pts - a.pts;
     if (b.W !== a.W) return b.W - a.W;
+    // head-to-head between two tied teams
     if (a.h2h[b.team.id]) return -1;
     if (b.h2h[a.team.id]) return 1;
     return a.team.country.localeCompare(b.team.country, 'ro');
@@ -585,15 +599,19 @@ function standingsFor(groupId, results) {
   return arr;
 }
 
+// Is the group fully decided (all matches have a winner)?
 function groupComplete(groupId, results) {
   return TVD.MATCHES.filter(m => m.group === groupId)
     .every(m => results[m.id] && results[m.id].winner);
 }
 
+/* ---- Knockout resolution ----------------------------------------- */
+// Resolve a slot reference {seed,grp} | {from} | {fromLoser} to a team id (or null).
 function resolveSlot(slot, results, ko) {
   if (slot.grp) {
     const st = standingsFor(slot.grp, results);
     const row = st[slot.seed - 1];
+    // only lock the team in once the group is fully complete
     if (!groupComplete(slot.grp, results)) return { teamId: null, label: `${slot.seed}${slot.grp}`, provisional: row ? row.team.id : null };
     return { teamId: row ? row.team.id : null, label: `${slot.seed}${slot.grp}` };
   }
@@ -617,6 +635,8 @@ function koBaseName(id) {
   const map = { qf1: 'Sfert 1', qf2: 'Sfert 2', qf3: 'Sfert 3', qf4: 'Sfert 4', sf1: 'Semifinala 1', sf2: 'Semifinala 2' };
   return map[id] || id;
 }
+
+// Winner team id of a ko match (needs the chosen side + both slots resolvable)
 function koWinner(koId, results, ko) {
   const m = koMatchById(koId);
   const side = ko[koId];
@@ -631,15 +651,23 @@ function koLoser(koId, results, ko) {
   const slot = side === 'a' ? m.b : m.a;
   return resolveSlot(slot, results, ko).teamId;
 }
+
 window.ENGINE = { useTournament, standingsFor, groupComplete, resolveSlot, koMatchById, koWinner, koLoser };
+
 </script>
 
 <!-- ============ components ============ -->
 <script type="text/babel">
+/* ====================================================================
+   Presentational components: standings, match cards, group cards
+   TEAMS, GROUPS, MATCHES are already global (declared in data.js).
+   ==================================================================== */
+
 function Players({ team }) {
-  return <div className="players">{team.p[0]}{team.p[1]}</div>;
+  return <div className="players">{team.p[0]} · {team.p[1]}</div>;
 }
 
+/* A clickable team row inside a match card. */
 function TeamRow({ team, side, winnerSide, decided, color, onPick }) {
   const isWin = winnerSide === side;
   const isLose = decided && !isWin;
@@ -654,28 +682,32 @@ function TeamRow({ team, side, winnerSide, decided, color, onPick }) {
       <span className="mc-flag">{team.flag}</span>
       <span className="mc-tn">
         <span className="mc-country">{team.country}</span>
+        <span className="mc-players">{team.p[0]} · {team.p[1]}</span>
       </span>
       <span className="mc-check" aria-hidden="true">✓</span>
     </button>
   );
 }
 
+/* Editable match card. */
 function MatchCard({ match, store, showDate }) {
   const { state, setWinner, setScore } = store;
   const r = state.results[match.id] || {};
   const home = TEAMS[match.home], away = TEAMS[match.away];
   const color = GROUPS[match.group].color;
   const decided = !!r.winner;
+
   return (
     <div className={'matchcard' + (decided ? ' done' : '')}>
       <div className="mc-head">
         <span className="mc-grp" style={{ '--c': color }}>Gr. {match.group}</span>
-        {showDate && <span className="mc-date">{match.label}{match.time ? '' + match.time : ''}</span>}
+        {showDate && <span className="mc-date">{match.label}{match.time ? ' · ' + match.time : ''}</span>}
         {!showDate && match.time && <span className="mc-date">{match.time}</span>}
         {decided
           ? <span className="mc-status done">Finalizat</span>
           : <span className="mc-status">De jucat</span>}
       </div>
+
       <div className="mc-body">
         <TeamRow team={home} side="home" winnerSide={r.winner} decided={decided} color={color}
                  onPick={(s) => setWinner(match.id, s)} />
@@ -683,6 +715,7 @@ function MatchCard({ match, store, showDate }) {
         <TeamRow team={away} side="away" winnerSide={r.winner} decided={decided} color={color}
                  onPick={(s) => setWinner(match.id, s)} />
       </div>
+
       <div className="mc-foot">
         <input
           className="mc-score"
@@ -700,6 +733,7 @@ function MatchCard({ match, store, showDate }) {
   );
 }
 
+/* 2x2 flag tile used in group card header (callback to the reference art). */
 function FlagTile({ groupId }) {
   const teams = Object.values(TEAMS).filter(t => t.group === groupId);
   return (
@@ -709,6 +743,7 @@ function FlagTile({ groupId }) {
   );
 }
 
+/* Standings table for one group. */
 function Standings({ groupId, store }) {
   const rows = window.ENGINE.standingsFor(groupId, store.state.results);
   const complete = window.ENGINE.groupComplete(groupId, store.state.results);
@@ -732,6 +767,7 @@ function Standings({ groupId, store }) {
                 <span className="st-flag">{row.team.flag}</span>
                 <span className="st-name">
                   <span className="st-country">{row.team.country}</span>
+                  <span className="st-players">{row.team.p[0]} · {row.team.p[1]}</span>
                 </span>
                 {qual && complete && <span className="st-badge" style={{ '--c': color }}>calificat</span>}
               </td>
@@ -747,6 +783,7 @@ function Standings({ groupId, store }) {
   );
 }
 
+/* Full group card: header + standings + matches. */
 function GroupCard({ groupId, store }) {
   const g = GROUPS[groupId];
   const matches = window.TV.MATCHES.filter(m => m.group === groupId);
@@ -770,18 +807,27 @@ function GroupCard({ groupId, store }) {
 }
 
 Object.assign(window, { Players, TeamRow, MatchCard, FlagTile, Standings, GroupCard });
+
 </script>
 
 <!-- ============ bracket ============ -->
 <script type="text/babel">
+/* ====================================================================
+   Knockout bracket: QF -> SF -> Final + Bronze, trophy & champion
+   ==================================================================== */
 const E = window.ENGINE;
+const KOD = window.TV.KO;
 
+function shortCountry(c) { return c; }
+
+/* One pickable slot inside a KO match. */
 function KOSlot({ slot, store, koId, side, chosen }) {
   const res = E.resolveSlot(slot, store.state.results, store.state.ko);
   const team = res.teamId ? window.TV.TEAMS[res.teamId] : null;
   const isWin = chosen === side && !!team;
   const isLose = chosen && chosen !== side && !!team;
   const provisional = !team && res.provisional ? window.TV.TEAMS[res.provisional] : null;
+
   const cls = 'ko-slot' + (isWin ? ' win' : '') + (isLose ? ' lose' : '') + (!team ? ' empty' : '');
   return (
     <button
@@ -795,13 +841,14 @@ function KOSlot({ slot, store, koId, side, chosen }) {
           <span className="ko-flag">{team.flag}</span>
           <span className="ko-tn">
             <span className="ko-country">{team.country}</span>
+            <span className="ko-players">{team.p[0]} · {team.p[1]}</span>
           </span>
           <span className="ko-check">✓</span>
         </>
       ) : (
         <>
           <span className="ko-seed">{res.label}</span>
-          {provisional && <span className="ko-prov">{provisional.flag} {provisional.country}provizoriu</span>}
+          {provisional && <span className="ko-prov">{provisional.flag} {provisional.country} · provizoriu</span>}
         </>
       )}
     </button>
@@ -835,6 +882,7 @@ function Trophy({ store }) {
         <div className="champ">
           <span className="champ-flag">{champ.flag}</span>
           <span className="champ-country">{champ.country}</span>
+          <span className="champ-players">{champ.p[0]} · {champ.p[1]}</span>
         </div>
       ) : (
         <div className="champ champ-tbd">FIFA Cup TradeVille</div>
@@ -868,7 +916,7 @@ function Bracket({ store }) {
           </div>
           <Trophy store={store} />
           <div className="bronze-bot">
-            <div className="final-label bronze">Finala micăLocul 3</div>
+            <div className="final-label bronze">Finala mică · Locul 3</div>
             <KOCard koId="bronze" store={store} />
           </div>
         </div>
@@ -891,21 +939,23 @@ function Bracket({ store }) {
 }
 
 Object.assign(window, { KOSlot, KOCard, Trophy, Bracket });
+
 </script>
 
 <!-- ============ app ============ -->
 <script type="text/babel">
+/* ====================================================================
+   App shell: header, tabs (Grupe / Calendar / Bracket), views
+   ==================================================================== */
 const { useState: useStateA } = React;
 
 function Calendar({ store }) {
   const dates = [];
   const byDate = {};
   window.TV.MATCHES.forEach(m => {
-    const actualDate = store.state.schedule[m.id] || m.date;
-    if (!byDate[actualDate]) { byDate[actualDate] = { label: m.label, items: [] }; dates.push(actualDate); }
-    byDate[actualDate].items.push(m);
+    if (!byDate[m.date]) { byDate[m.date] = { label: m.label, items: [] }; dates.push(m.date); }
+    byDate[m.date].items.push(m);
   });
-  dates.sort();
   return (
     <div className="calendar">
       {dates.map(d => (
@@ -931,62 +981,10 @@ function Groups({ store }) {
   );
 }
 
-function Reschedule({ store }) {
-  return (
-    <div className="view">
-      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-        <h2 style={{ fontSize: '24px', marginBottom: '20px', color: 'var(--txt)' }}>Reschedule Matches</h2>
-        <table className="reschedule-table">
-          <thead>
-            <tr>
-              <th>Meci</th>
-              <th style={{ width: '200px' }}>Data Inițială</th>
-              <th style={{ width: '200px' }}>Data Nouă</th>
-            </tr>
-          </thead>
-          <tbody>
-            {window.TV.MATCHES.map(m => {
-              const home = TEAMS[m.home];
-              const away = TEAMS[m.away];
-              const actualDate = store.state.schedule[m.id] || m.date;
-              return (
-                <tr key={m.id}>
-                  <td>
-                    <div className="rs-match">
-                      <span className="rs-flag">{home.flag}</span>
-                      <div className="rs-teams">
-                        <div className="rs-team">{home.country}</div>
-                        <div className="rs-vs">vs</div>
-                        <div className="rs-team">{away.country}</div>
-                      </div>
-                      <span className="rs-flag">{away.flag}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="rs-date-label">{m.label}</div>
-                  </td>
-                  <td>
-                    <input
-                      className="rs-date-input"
-                      type="date"
-                      value={actualDate}
-                      onChange={(e) => store.setSchedule(m.id, e.target.value)}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
 function App() {
   const store = window.ENGINE.useTournament();
   const [tab, setTab] = useStateA('grupe');
-  const [key, setKey] = useStateA(0);
+
   const total = window.TV.MATCHES.length;
   const done = window.TV.MATCHES.filter(m => (store.state.results[m.id] || {}).winner).length;
 
@@ -997,42 +995,46 @@ function App() {
   return (
     <div className="app">
       <div className="bg-orbs" aria-hidden="true" />
+
       <header className="topbar">
         <div className="brand">
-          <span className="brand-mark">⚽</span>
-          <span className="brand-name">FIFA Cup 2026</span>
+          <span className="brand-mark">TV</span>
+          <span className="brand-name">TradeVille</span>
         </div>
         <div className="topbar-meta">
           <span className="meta-prog">{done}<span>/{total}</span> meciuri jucate</span>
           <button className="btn-reset" onClick={onReset} title="Resetează tot">Resetează</button>
         </div>
       </header>
+
       <div className="hero">
-        <div className="hero-kicker">10 – 25 Iunie 202616 echipe4 grupe</div>
+        <div className="hero-kicker">10 – 25 Iunie 2026 · 16 echipe · 4 grupe</div>
         <h1 className="hero-title">FIFA CUP<br /><span>TRADEVILLE</span></h1>
-        <div className="hero-sub">Turneul perechilorgrupe + faza eliminatorie</div>
+        <div className="hero-sub">Turneul perechilor · grupe + faza eliminatorie</div>
       </div>
+
       <nav className="tabs">
         <button className={tab === 'grupe' ? 'on' : ''} onClick={() => setTab('grupe')}>Grupe</button>
         <button className={tab === 'calendar' ? 'on' : ''} onClick={() => setTab('calendar')}>Calendar</button>
         <button className={tab === 'bracket' ? 'on' : ''} onClick={() => setTab('bracket')}>Faza eliminatorie</button>
-        <button className={tab === 'reschedule' ? 'on' : ''} onClick={() => setTab('reschedule')}>Reprogramare</button>
       </nav>
-      <main>
-        {tab === 'grupe' && <div className="view"><Groups store={store} /></div>}
+
+      <main className="view">
+        {tab === 'grupe' && <Groups store={store} />}
         {tab === 'calendar' && <Calendar store={store} />}
-        {tab === 'bracket' && <div className="view"><Bracket store={store} /></div>}
-        {tab === 'reschedule' && <Reschedule store={store} />}
+        {tab === 'bracket' && <Bracket store={store} />}
       </main>
+
       <footer className="foot">
         <div className="foot-26">FIFA CUP <b>26</b></div>
-        <div className="foot-note">Marchează câștigătorul fiecărui meci — clasamentele și bracketul se completează automat. Progresul se sincronizează în timp real.</div>
+        <div className="foot-note">Marchează câștigătorul fiecărui meci — clasamentele și bracketul se completează automat. Progresul se salvează în acest browser.</div>
       </footer>
     </div>
   );
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
 </script>
 </body>
 </html>

@@ -1,0 +1,13 @@
+{
+  "name": "fifa-cup-2026",
+  "version": "1.0.0",
+  "description": "FIFA Cup 2026 Tournament Tracker with real-time Firebase sync",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node -e \"const fs = require('fs'); const path = require('path'); const files = ['data.js', 'engine.jsx', 'components.jsx', 'bracket.jsx', 'app.jsx']; files.forEach(f => fs.watchFile(path.join(__dirname, f), () => { console.log('Rebuilding...'); require('./build.js'); }));\""
+  },
+  "keywords": ["fifa", "tournament", "tracker"],
+  "author": "",
+  "license": "MIT"
+}
