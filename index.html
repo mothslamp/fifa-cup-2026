@@ -521,10 +521,32 @@ function loadState() {
 
 function useTournament() {
   const [state, setState] = useState(loadState);
+  const [synced, setSynced] = useState(false);
 
   useEffect(() => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
-  }, [state]);
+
+    if (window.firebaseReady && synced) {
+      window.firebaseDb.ref('state').set(state).catch(e => console.log('Firebase sync failed:', e));
+    }
+  }, [state, synced]);
+
+  useEffect(() => {
+    if (!window.firebaseReady) {
+      setSynced(true);
+      return;
+    }
+
+    window.firebaseDb.ref('state').on('value', snapshot => {
+      const data = snapshot.val();
+      if (data) setState(data);
+      setSynced(true);
+    });
+
+    return () => {
+      if (window.firebaseDb) window.firebaseDb.ref('state').off();
+    };
+  }, []);
 
   // Set / toggle winner of a group match. side = 'home' | 'away' | null
   const setWinner = useCallback((matchId, side) => {
