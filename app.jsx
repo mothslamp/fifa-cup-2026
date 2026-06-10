@@ -59,6 +59,14 @@ function Reschedule({ store }) {
     return `${day} ${dayNum} ${month}`;
   };
 
+  const isLocked = (m) => {
+    const dateStr = store.state.schedule[m.id] || m.date;
+    const matchDate = new Date(dateStr + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return matchDate < today;
+  };
+
   return (
     <div className="view">
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -76,8 +84,9 @@ function Reschedule({ store }) {
               const home = TEAMS[m.home];
               const away = TEAMS[m.away];
               const actualDate = store.state.schedule[m.id] || m.date;
+              const locked = isLocked(m);
               return (
-                <tr key={m.id}>
+                <tr key={m.id} className={locked ? 'rs-locked' : ''}>
                   <td>
                     <div className="rs-match">
                       <span className="rs-flag">{home.flag}</span>
@@ -90,14 +99,19 @@ function Reschedule({ store }) {
                     </div>
                   </td>
                   <td>
-                    <div className="rs-date-label">{getDateLabel(actualDate)}</div>
+                    <div className="rs-date-label">
+                      {getDateLabel(actualDate)}
+                      {locked && <span className="rs-lock-badge">🔒</span>}
+                    </div>
                   </td>
                   <td>
                     <input
                       className="rs-date-input"
                       type="date"
                       value={actualDate}
-                      onChange={(e) => store.setSchedule(m.id, e.target.value)}
+                      onChange={locked ? undefined : (e) => store.setSchedule(m.id, e.target.value)}
+                      disabled={locked}
+                      title={locked ? 'Meci jucat — data nu poate fi modificată' : undefined}
                     />
                   </td>
                 </tr>

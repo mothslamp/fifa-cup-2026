@@ -8,16 +8,17 @@ function Players({ team }) {
 }
 
 /* A clickable team row inside a match card. */
-function TeamRow({ team, side, winnerSide, decided, color, onPick }) {
+function TeamRow({ team, side, winnerSide, decided, color, onPick, locked }) {
   const isWin = winnerSide === side;
   const isLose = decided && !isWin;
-  const cls = 'mc-team' + (isWin ? ' win' : '') + (isLose ? ' lose' : '');
+  const cls = 'mc-team' + (isWin ? ' win' : '') + (isLose ? ' lose' : '') + (locked ? ' locked' : '');
   return (
     <button
       className={cls}
       style={isWin ? { '--win': color } : undefined}
-      onClick={() => onPick(isWin ? null : side)}
-      title="Marchează câștigătorul"
+      onClick={locked ? undefined : () => onPick(isWin ? null : side)}
+      disabled={locked}
+      title={locked ? 'Meci jucat — nu poate fi modificat' : 'Marchează câștigătorul'}
     >
       <span className="mc-flag">{team.flag}</span>
       <span className="mc-tn">
@@ -29,6 +30,14 @@ function TeamRow({ team, side, winnerSide, decided, color, onPick }) {
   );
 }
 
+function isMatchLocked(match, schedule) {
+  const dateStr = (schedule && schedule[match.id]) || match.date;
+  const matchDate = new Date(dateStr + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return matchDate < today;
+}
+
 /* Editable match card. */
 function MatchCard({ match, store, showDate }) {
   const { state, setWinner, setScore } = store;
@@ -36,24 +45,27 @@ function MatchCard({ match, store, showDate }) {
   const home = TEAMS[match.home], away = TEAMS[match.away];
   const color = GROUPS[match.group].color;
   const decided = !!r.winner;
+  const locked = isMatchLocked(match, state.schedule);
 
   return (
-    <div className={'matchcard' + (decided ? ' done' : '')}>
+    <div className={'matchcard' + (decided ? ' done' : '') + (locked ? ' locked' : '')}>
       <div className="mc-head">
         <span className="mc-grp" style={{ '--c': color }}>Gr. {match.group}</span>
         {showDate && <span className="mc-date">{match.label}{match.time ? ' · ' + match.time : ''}</span>}
         {!showDate && match.time && <span className="mc-date">{match.time}</span>}
-        {decided
-          ? <span className="mc-status done">Finalizat</span>
-          : <span className="mc-status">De jucat</span>}
+        {locked
+          ? <span className="mc-status locked">🔒 Jucat</span>
+          : decided
+            ? <span className="mc-status done">Finalizat</span>
+            : <span className="mc-status">De jucat</span>}
       </div>
 
       <div className="mc-body">
         <TeamRow team={home} side="home" winnerSide={r.winner} decided={decided} color={color}
-                 onPick={(s) => setWinner(match.id, s)} />
+                 onPick={(s) => setWinner(match.id, s)} locked={locked} />
         <div className="mc-vs">vs</div>
         <TeamRow team={away} side="away" winnerSide={r.winner} decided={decided} color={color}
-                 onPick={(s) => setWinner(match.id, s)} />
+                 onPick={(s) => setWinner(match.id, s)} locked={locked} />
       </div>
 
       <div className="mc-foot">
@@ -63,9 +75,10 @@ function MatchCard({ match, store, showDate }) {
           inputMode="text"
           placeholder="scor (opțional)"
           value={r.score || ''}
-          onChange={(e) => setScore(match.id, e.target.value)}
+          onChange={locked ? undefined : (e) => setScore(match.id, e.target.value)}
+          disabled={locked}
         />
-        {decided && (
+        {decided && !locked && (
           <button className="mc-reset" onClick={() => setWinner(match.id, null)}>↺ resetează</button>
         )}
       </div>

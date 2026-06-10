@@ -197,6 +197,9 @@ input{font-family:inherit;}
   text-transform:uppercase;color:var(--mut2);
 }
 .mc-status.done{color:var(--gold);}
+.mc-status.locked{color:var(--mut2);}
+.matchcard.locked .mc-team{cursor:not-allowed;opacity:.85;}
+.matchcard.locked .mc-team:hover{background:transparent;}
 .mc-body{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:8px;}
 .mc-team{
   display:flex;align-items:center;gap:9px;text-align:left;
@@ -349,7 +352,10 @@ input{font-family:inherit;}
   filter:invert(1);cursor:pointer;
 }
 .rs-date-input:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(233,196,106,.15);}
-.rs-date-label{font-family:'Barlow Condensed';font-weight:600;font-size:12px;color:var(--mut);letter-spacing:.3px;}
+.rs-date-label{font-family:'Barlow Condensed';font-weight:600;font-size:12px;color:var(--mut);letter-spacing:.3px;display:flex;align-items:center;gap:6px;}
+.rs-lock-badge{font-size:11px;opacity:.7;}
+.rs-date-input:disabled{opacity:.45;cursor:not-allowed;}
+tr.rs-locked td{opacity:.7;}
 
 /* ---------- footer ---------- */
 .foot{text-align:center;padding:30px 20px 50px;border-top:1px solid var(--line);margin-top:30px;}
