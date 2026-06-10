@@ -17,14 +17,12 @@ function loadState() {
 function useTournament() {
   const [state, setState] = useState(loadState);
   const [synced, setSynced] = useState(false);
-  const isLocalChange = React.useRef(false);
 
   useEffect(() => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
 
-    if (window.firebaseReady && synced && isLocalChange.current) {
+    if (window.firebaseReady && synced) {
       window.firebaseDb.ref('state').set(state).catch(e => console.log('Firebase sync failed:', e));
-      isLocalChange.current = false;
     }
   }, [state, synced]);
 
@@ -35,25 +33,16 @@ function useTournament() {
     }
 
     const ref = window.firebaseDb.ref('state');
-    const listener = ref.on('value', snapshot => {
+    ref.on('value', snapshot => {
       const data = snapshot.val();
-      if (data) {
-        setState(data);
-      }
+      if (data) setState(data);
       setSynced(true);
     });
 
     return () => {
-      ref.off('value', listener);
+      ref.off();
     };
   }, []);
-
-  const wrapSetState = (callback) => {
-    return (...args) => {
-      isLocalChange.current = true;
-      callback(...args);
-    };
-  };
 
   // Set / toggle winner of a group match. side = 'home' | 'away' | null
   const setWinner = useCallback((matchId, side) => {
@@ -101,19 +90,9 @@ function useTournament() {
     });
   }, []);
 
-  const resetAll = useCallback(() => {
-    isLocalChange.current = true;
-    setState({ results: {}, ko: {}, schedule: {} });
-  }, []);
+  const resetAll = useCallback(() => setState({ results: {}, ko: {}, schedule: {} }), []);
 
-  return {
-    state,
-    setWinner: wrapSetState(setWinner),
-    setScore: wrapSetState(setScore),
-    setKO: wrapSetState(setKO),
-    setSchedule: wrapSetState(setSchedule),
-    resetAll
-  };
+  return { state, setWinner, setScore, setKO, setSchedule, resetAll };
 }
 
 /* ---- Standings ---------------------------------------------------- */
