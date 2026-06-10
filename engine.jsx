@@ -35,7 +35,13 @@ function useTournament() {
     const ref = window.firebaseDb.ref('state');
     ref.on('value', snapshot => {
       const data = snapshot.val();
-      if (data) setState(data);
+      if (data) {
+        setState({
+          results: data.results || {},
+          ko: data.ko || {},
+          schedule: data.schedule || {},
+        });
+      }
       setSynced(true);
     });
 
