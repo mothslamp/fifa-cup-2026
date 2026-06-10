@@ -1,5 +1,5 @@
 /* ====================================================================
-   Tournament engine + persistent store (localStorage)
+   Tournament engine + Firebase sync
    ==================================================================== */
 const { useState, useEffect, useCallback, useMemo } = React;
 const TVD = window.TV;
@@ -14,21 +14,26 @@ function loadState() {
   return { results: {}, ko: {}, schedule: {} };
 }
 
+function pushToFirebase(newState) {
+  if (window.firebaseReady && window.firebaseDb) {
+    window.firebaseDb.ref('state').set(newState).catch(e => console.log('Firebase sync failed:', e));
+  }
+}
+
 function useTournament() {
   const [state, setState] = useState(loadState);
-  const [synced, setSynced] = useState(false);
+  // Track whether we've received the initial Firebase snapshot
+  const [ready, setReady] = useState(false);
 
+  // Persist to localStorage on every state change
   useEffect(() => {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+  }, [state]);
 
-    if (window.firebaseReady && synced) {
-      window.firebaseDb.ref('state').set(state).catch(e => console.log('Firebase sync failed:', e));
-    }
-  }, [state, synced]);
-
+  // Subscribe to Firebase once on mount; only apply remote changes
   useEffect(() => {
     if (!window.firebaseReady) {
-      setSynced(true);
+      setReady(true);
       return;
     }
 
@@ -42,12 +47,10 @@ function useTournament() {
           schedule: data.schedule || {},
         });
       }
-      setSynced(true);
+      setReady(true);
     });
 
-    return () => {
-      ref.off();
-    };
+    return () => ref.off();
   }, []);
 
   // Set / toggle winner of a group match. side = 'home' | 'away' | null
@@ -61,7 +64,9 @@ function useTournament() {
       } else {
         results[matchId] = { ...cur, winner: side };
       }
-      return { ...s, results };
+      const next = { ...s, results };
+      pushToFirebase(next);
+      return next;
     });
   }, []);
 
@@ -75,7 +80,9 @@ function useTournament() {
       } else {
         results[matchId] = { ...cur, score };
       }
-      return { ...s, results };
+      const next = { ...s, results };
+      pushToFirebase(next);
+      return next;
     });
   }, []);
 
@@ -84,7 +91,9 @@ function useTournament() {
     setState(s => {
       const ko = { ...s.ko };
       if (side === null) delete ko[koId]; else ko[koId] = side;
-      return { ...s, ko };
+      const next = { ...s, ko };
+      pushToFirebase(next);
+      return next;
     });
   }, []);
 
@@ -92,13 +101,19 @@ function useTournament() {
     setState(s => {
       const schedule = { ...s.schedule };
       if (!newDate) delete schedule[matchId]; else schedule[matchId] = newDate;
-      return { ...s, schedule };
+      const next = { ...s, schedule };
+      pushToFirebase(next);
+      return next;
     });
   }, []);
 
-  const resetAll = useCallback(() => setState({ results: {}, ko: {}, schedule: {} }), []);
+  const resetAll = useCallback(() => {
+    const next = { results: {}, ko: {}, schedule: {} };
+    setState(next);
+    pushToFirebase(next);
+  }, []);
 
-  return { state, setWinner, setScore, setKO, setSchedule, resetAll };
+  return { state, ready, setWinner, setScore, setKO, setSchedule, resetAll };
 }
 
 /* ---- Standings ---------------------------------------------------- */
