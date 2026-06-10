@@ -158,7 +158,7 @@ function App() {
 
       <footer className="foot">
         <div className="foot-26">FIFA CUP <b>26</b></div>
-        <div className="foot-note">Marchează câștigătorul fiecărui meci — clasamentele și bracketul se completează automat. Progresul se salvează în acest browser.</div>
+        <div className="foot-note">Marchează câștigătorul fiecărui meci — clasamentele și bracketul se completează automat.</div>
       </footer>
     </div>
   );
