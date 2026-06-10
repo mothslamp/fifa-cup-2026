@@ -24,13 +24,13 @@ const TEAMS = {
   B_QA: { id: 'B_QA', group: 'B', flag: '🇶🇦', country: 'Qatar',           p: ['Robert Ioniță', 'Gabriel Șipoteanu'] },
   B_CH: { id: 'B_CH', group: 'B', flag: '🇨🇭', country: 'Elveția',         p: ['Mădălin Neagu', 'Daniel Chirițoiu'] },
   B_CA: { id: 'B_CA', group: 'B', flag: '🇨🇦', country: 'Canada',          p: ['Aurelian Fulga', 'Titel Zuda'] },
-  B_BA: { id: 'B_BA', group: 'B', flag: '🇧🇦', country: 'Bosnia și Herț.', p: ['Alexandru Dobre', 'Mihaela David'] },
+  B_BA: { id: 'B_BA', group: 'B', flag: '🇧🇦', country: 'Bosnia și Herț.', p: ['Alexandru Dobre', 'Adrian Mădescu'] },
 
   // Grupa D
   D_US: { id: 'D_US', group: 'D', flag: '🇺🇸', country: 'S.U.A.',     p: ['Cătălin Lefter', 'Nicoleta Crețu'] },
-  D_PY: { id: 'D_PY', group: 'D', flag: '🇵🇾', country: 'Paraguay',   p: ['Bogdan Marin', 'Claudiu Stan'] },
+  D_PY: { id: 'D_PY', group: 'D', flag: '🇵🇾', country: 'Paraguay',   p: ['Dan Cănănău', 'Bogdan Marin'] },
   D_AU: { id: 'D_AU', group: 'D', flag: '🇦🇺', country: 'Australia',  p: ['Antonio Angheluță', 'Cristian Popescu'] },
-  D_TR: { id: 'D_TR', group: 'D', flag: '🇹🇷', country: 'Türkiye',    p: ['Sergiu Stanciu', 'Adrian Mădescu'] },
+  D_TR: { id: 'D_TR', group: 'D', flag: '🇹🇷', country: 'Türkiye',    p: ['Sergiu Stanciu', 'Claudiu Stan'] },
 
   // Grupa F
   F_NL: { id: 'F_NL', group: 'F', flag: '🇳🇱', country: 'Olanda',   p: ['Andrei Chirițoiu', 'Alexandru Trușcă'] },
