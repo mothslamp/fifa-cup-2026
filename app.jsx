@@ -131,10 +131,6 @@ function App() {
   const total = window.TV.MATCHES.length;
   const done = window.TV.MATCHES.filter(m => (store.state.results[m.id] || {}).winner).length;
 
-  const onReset = () => {
-    if (window.confirm('Resetezi toate rezultatele și bracketul? Acțiunea nu poate fi anulată.')) store.resetAll();
-  };
-
   return (
     <div className="app">
       <div className="bg-orbs" aria-hidden="true" />
@@ -146,7 +142,6 @@ function App() {
         </div>
         <div className="topbar-meta">
           <span className="meta-prog">{done}<span>/{total}</span> meciuri jucate</span>
-          <button className="btn-reset" onClick={onReset} title="Resetează tot">Resetează</button>
         </div>
       </header>
 
