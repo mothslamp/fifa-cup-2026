@@ -46,7 +46,7 @@ const MATCHES = [
   { id: 'm02', date: '2026-06-11', label: 'Joi 11 Iunie',       group: 'A', home: 'A_MX', away: 'A_ZA' },
   { id: 'm03', date: '2026-06-11', label: 'Joi 11 Iunie',       group: 'A', home: 'A_KR', away: 'A_CZ' },
 
-  { id: 'm04', date: '2026-06-12', label: 'Vineri 12 Iunie',    group: 'B', home: 'B_CA', away: 'B_BA', time: '17:00' },
+  { id: 'm04', date: '2026-06-12', label: 'Vineri 12 Iunie',    group: 'B', home: 'B_CA', away: 'B_BA' },
   { id: 'm05', date: '2026-06-12', label: 'Vineri 12 Iunie',    group: 'D', home: 'D_US', away: 'D_PY' },
 
   { id: 'm06', date: '2026-06-14', label: 'Duminică 14 Iunie',  group: 'D', home: 'D_AU', away: 'D_TR' },
