@@ -1,60 +1,43 @@
 /* ====================================================================
    Tournament engine + Firebase sync
    ==================================================================== */
-const { useState, useEffect, useCallback, useMemo } = React;
+const { useState, useEffect, useCallback, useRef } = React;
 const TVD = window.TV;
 
-const STORE_KEY = 'cupatv:v2';
-
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch (e) {}
-  return { results: {}, ko: {}, schedule: {} };
-}
-
-function pushToFirebase(newState) {
-  if (window.firebaseReady && window.firebaseDb) {
-    window.firebaseDb.ref('state').set(newState).catch(e => console.log('Firebase sync failed:', e));
-  }
-}
+const EMPTY = { results: {}, ko: {}, schedule: {} };
 
 function useTournament() {
-  const [state, setState] = useState(loadState);
-  // Track whether we've received the initial Firebase snapshot
-  const [ready, setReady] = useState(false);
+  const [state, setState] = useState(EMPTY);
+  // true once the first Firebase snapshot has been applied
+  const readyRef = useRef(false);
 
-  // Persist to localStorage on every state change
   useEffect(() => {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
-  }, [state]);
-
-  // Subscribe to Firebase once on mount; only apply remote changes
-  useEffect(() => {
-    if (!window.firebaseReady) {
-      setReady(true);
-      return;
-    }
+    if (!window.firebaseReady) return;
 
     const ref = window.firebaseDb.ref('state');
     ref.on('value', snapshot => {
       const data = snapshot.val();
-      if (data) {
-        setState({
-          results: data.results || {},
-          ko: data.ko || {},
-          schedule: data.schedule || {},
-        });
-      }
-      setReady(true);
+      setState({
+        results: (data && data.results) || {},
+        ko:      (data && data.ko)      || {},
+        schedule:(data && data.schedule)|| {},
+      });
+      readyRef.current = true;
     });
 
     return () => ref.off();
   }, []);
 
-  // Set / toggle winner of a group match. side = 'home' | 'away' | null
+  // Push only a specific path to Firebase to avoid overwriting concurrent changes
+  const pushField = useCallback((field, value) => {
+    if (window.firebaseReady && window.firebaseDb) {
+      window.firebaseDb.ref('state/' + field).set(value)
+        .catch(e => console.log('Firebase sync failed:', e));
+    }
+  }, []);
+
   const setWinner = useCallback((matchId, side) => {
+    if (!readyRef.current) return;
     setState(s => {
       const results = { ...s.results };
       const cur = results[matchId] || {};
@@ -64,13 +47,13 @@ function useTournament() {
       } else {
         results[matchId] = { ...cur, winner: side };
       }
-      const next = { ...s, results };
-      pushToFirebase(next);
-      return next;
+      pushField('results', results);
+      return { ...s, results };
     });
-  }, []);
+  }, [pushField]);
 
   const setScore = useCallback((matchId, score) => {
+    if (!readyRef.current) return;
     setState(s => {
       const results = { ...s.results };
       const cur = results[matchId] || {};
@@ -80,44 +63,44 @@ function useTournament() {
       } else {
         results[matchId] = { ...cur, score };
       }
-      const next = { ...s, results };
-      pushToFirebase(next);
-      return next;
+      pushField('results', results);
+      return { ...s, results };
     });
-  }, []);
+  }, [pushField]);
 
-  // Advance a knockout match. side = 'a' | 'b' | null
   const setKO = useCallback((koId, side) => {
+    if (!readyRef.current) return;
     setState(s => {
       const ko = { ...s.ko };
       if (side === null) delete ko[koId]; else ko[koId] = side;
-      const next = { ...s, ko };
-      pushToFirebase(next);
-      return next;
+      pushField('ko', ko);
+      return { ...s, ko };
     });
-  }, []);
+  }, [pushField]);
 
   const setSchedule = useCallback((matchId, newDate) => {
+    if (!readyRef.current) return;
     setState(s => {
       const schedule = { ...s.schedule };
       if (!newDate) delete schedule[matchId]; else schedule[matchId] = newDate;
-      const next = { ...s, schedule };
-      pushToFirebase(next);
-      return next;
+      pushField('schedule', schedule);
+      return { ...s, schedule };
     });
-  }, []);
+  }, [pushField]);
 
   const resetAll = useCallback(() => {
-    const next = { results: {}, ko: {}, schedule: {} };
-    setState(next);
-    pushToFirebase(next);
+    if (!readyRef.current) return;
+    setState(EMPTY);
+    if (window.firebaseReady && window.firebaseDb) {
+      window.firebaseDb.ref('state').set(EMPTY)
+        .catch(e => console.log('Firebase sync failed:', e));
+    }
   }, []);
 
-  return { state, ready, setWinner, setScore, setKO, setSchedule, resetAll };
+  return { state, setWinner, setScore, setKO, setSchedule, resetAll };
 }
 
 /* ---- Standings ---------------------------------------------------- */
-// Returns ordered array of { team, P, W, L, pts } for a group.
 function standingsFor(groupId, results) {
   const teams = Object.values(TVD.TEAMS).filter(t => t.group === groupId);
   const rows = {};
@@ -138,7 +121,6 @@ function standingsFor(groupId, results) {
   arr.sort((a, b) => {
     if (b.pts !== a.pts) return b.pts - a.pts;
     if (b.W !== a.W) return b.W - a.W;
-    // head-to-head between two tied teams
     if (a.h2h[b.team.id]) return -1;
     if (b.h2h[a.team.id]) return 1;
     return a.team.country.localeCompare(b.team.country, 'ro');
@@ -146,19 +128,16 @@ function standingsFor(groupId, results) {
   return arr;
 }
 
-// Is the group fully decided (all matches have a winner)?
 function groupComplete(groupId, results) {
   return TVD.MATCHES.filter(m => m.group === groupId)
     .every(m => results[m.id] && results[m.id].winner);
 }
 
 /* ---- Knockout resolution ----------------------------------------- */
-// Resolve a slot reference {seed,grp} | {from} | {fromLoser} to a team id (or null).
 function resolveSlot(slot, results, ko) {
   if (slot.grp) {
     const st = standingsFor(slot.grp, results);
     const row = st[slot.seed - 1];
-    // only lock the team in once the group is fully complete
     if (!groupComplete(slot.grp, results)) return { teamId: null, label: `${slot.seed}${slot.grp}`, provisional: row ? row.team.id : null };
     return { teamId: row ? row.team.id : null, label: `${slot.seed}${slot.grp}` };
   }
@@ -183,7 +162,6 @@ function koBaseName(id) {
   return map[id] || id;
 }
 
-// Winner team id of a ko match (needs the chosen side + both slots resolvable)
 function koWinner(koId, results, ko) {
   const m = koMatchById(koId);
   const side = ko[koId];
