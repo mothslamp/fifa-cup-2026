@@ -47,11 +47,20 @@ function MatchCard({ match, store, showDate }) {
   const decided = !!r.winner;
   const locked = isMatchLocked(match, state.schedule);
 
+  const getDateLabel = (dateStr) => {
+    const date = new Date(dateStr + 'T00:00:00');
+    const days = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă'];
+    const months = ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'];
+    return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
+  };
+  const actualDate = (state.schedule && state.schedule[match.id]) || match.date;
+  const dateLabel = getDateLabel(actualDate);
+
   return (
     <div className={'matchcard' + (decided ? ' done' : '') + (locked ? ' locked' : '')}>
       <div className="mc-head">
         <span className="mc-grp" style={{ '--c': color }}>Gr. {match.group}</span>
-        {showDate && <span className="mc-date">{match.label}{match.time ? ' · ' + match.time : ''}</span>}
+        {showDate && <span className="mc-date">{dateLabel}{match.time ? ' · ' + match.time : ''}</span>}
         {!showDate && match.time && <span className="mc-date">{match.time}</span>}
         {locked
           ? <span className="mc-status locked">🔒 Jucat</span>
