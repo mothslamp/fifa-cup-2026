@@ -104,17 +104,22 @@ function useTournament() {
 function standingsFor(groupId, results) {
   const teams = Object.values(TVD.TEAMS).filter(t => t.group === groupId);
   const rows = {};
-  teams.forEach(t => { rows[t.id] = { team: t, P: 0, W: 0, L: 0, pts: 0, h2h: {} }; });
+  teams.forEach(t => { rows[t.id] = { team: t, P: 0, W: 0, D: 0, L: 0, pts: 0, h2h: {} }; });
 
   const groupMatches = TVD.MATCHES.filter(m => m.group === groupId);
   groupMatches.forEach(m => {
     const r = results[m.id];
     if (!r || !r.winner) return;
-    const winId = r.winner === 'home' ? m.home : m.away;
-    const loseId = r.winner === 'home' ? m.away : m.home;
-    rows[winId].P++; rows[winId].W++; rows[winId].pts += 3;
-    rows[loseId].P++; rows[loseId].L++;
-    rows[winId].h2h[loseId] = 1;
+    if (r.winner === 'draw') {
+      rows[m.home].P++; rows[m.home].D++; rows[m.home].pts += 1;
+      rows[m.away].P++; rows[m.away].D++; rows[m.away].pts += 1;
+    } else {
+      const winId = r.winner === 'home' ? m.home : m.away;
+      const loseId = r.winner === 'home' ? m.away : m.home;
+      rows[winId].P++; rows[winId].W++; rows[winId].pts += 3;
+      rows[loseId].P++; rows[loseId].L++;
+      rows[winId].h2h[loseId] = 1;
+    }
   });
 
   const arr = Object.values(rows);

@@ -8,15 +8,15 @@ function Players({ team }) {
 }
 
 /* A clickable team row inside a match card. */
-function TeamRow({ team, side, winnerSide, decided, color, onPick, locked }) {
-  const isWin = winnerSide === side;
-  const isLose = decided && !isWin;
-  const cls = 'mc-team' + (isWin ? ' win' : '') + (isLose ? ' lose' : '') + (locked ? ' locked' : '');
+function TeamRow({ team, side, winnerSide, isDraw, decided, color, onPick, locked }) {
+  const isWin = !isDraw && winnerSide === side;
+  const isLose = decided && !isWin && !isDraw;
+  const cls = 'mc-team' + (isWin ? ' win' : '') + (isLose ? ' lose' : '') + (isDraw ? ' draw' : '') + (locked ? ' locked' : '');
   return (
     <button
       className={cls}
-      style={isWin ? { '--win': color } : undefined}
-      onClick={locked ? undefined : () => onPick(isWin ? null : side)}
+      style={isWin ? { '--win': color } : isDraw ? { '--win': color } : undefined}
+      onClick={locked ? undefined : () => onPick(isWin || isDraw ? null : side)}
       disabled={locked}
       title={locked ? 'Meci jucat — nu poate fi modificat' : 'Marchează câștigătorul'}
     >
@@ -25,7 +25,7 @@ function TeamRow({ team, side, winnerSide, decided, color, onPick, locked }) {
         <span className="mc-country">{team.country}</span>
         <span className="mc-players">{team.p[0]} · {team.p[1]}</span>
       </span>
-      <span className="mc-check" aria-hidden="true">✓</span>
+      <span className="mc-check" aria-hidden="true">{isDraw ? '½' : '✓'}</span>
     </button>
   );
 }
@@ -44,6 +44,7 @@ function MatchCard({ match, store, showDate }) {
   const r = state.results[match.id] || {};
   const home = TEAMS[match.home], away = TEAMS[match.away];
   const color = GROUPS[match.group].color;
+  const isDraw = r.winner === 'draw';
   const decided = !!r.winner;
   const locked = isMatchLocked(match, state.schedule);
 
@@ -70,10 +71,20 @@ function MatchCard({ match, store, showDate }) {
       </div>
 
       <div className="mc-body">
-        <TeamRow team={home} side="home" winnerSide={r.winner} decided={decided} color={color}
+        <TeamRow team={home} side="home" winnerSide={r.winner} isDraw={isDraw} decided={decided} color={color}
                  onPick={(s) => setWinner(match.id, s)} locked={locked} />
-        <div className="mc-vs">vs</div>
-        <TeamRow team={away} side="away" winnerSide={r.winner} decided={decided} color={color}
+        <div className="mc-vs-col">
+          <div className="mc-vs">vs</div>
+          {!locked && (
+            <button
+              className={'mc-draw' + (isDraw ? ' active' : '')}
+              onClick={() => setWinner(match.id, isDraw ? null : 'draw')}
+              title="Marchează egal"
+            >Egal</button>
+          )}
+          {locked && isDraw && <div className="mc-draw-label">Egal</div>}
+        </div>
+        <TeamRow team={away} side="away" winnerSide={r.winner} isDraw={isDraw} decided={decided} color={color}
                  onPick={(s) => setWinner(match.id, s)} locked={locked} />
       </div>
 
@@ -116,7 +127,7 @@ function Standings({ groupId, store }) {
         <tr>
           <th className="st-pos">#</th>
           <th className="st-team">Echipă</th>
-          <th>J</th><th>V</th><th>Î</th><th className="st-pts">Pct</th>
+          <th>J</th><th>V</th><th>E</th><th>Î</th><th className="st-pts">Pct</th>
         </tr>
       </thead>
       <tbody>
@@ -135,6 +146,7 @@ function Standings({ groupId, store }) {
               </td>
               <td>{row.P}</td>
               <td className="st-w">{row.W}</td>
+              <td>{row.D}</td>
               <td>{row.L}</td>
               <td className="st-pts">{row.pts}</td>
             </tr>
