@@ -370,6 +370,17 @@ input{font-family:inherit;}
 .rs-lock-badge{font-size:11px;opacity:.7;}
 .rs-date-input:disabled{opacity:.45;cursor:not-allowed;}
 tr.rs-locked td{opacity:.7;}
+.rs-time-input{
+  background:#0e1015;border:1px solid var(--line);border-radius:8px;
+  color:var(--txt);padding:7px 11px;font-size:13px;font-weight:500;width:110px;
+}
+.rs-time-input::-webkit-calendar-picker-indicator{filter:invert(1);cursor:pointer;}
+.rs-time-input:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(233,196,106,.15);}
+.rs-time-input:disabled{opacity:.45;cursor:not-allowed;}
+.kos-match{flex-direction:column;align-items:flex-start;gap:6px;}
+.kos-label{font-family:'Barlow Condensed';font-weight:700;font-size:12px;color:var(--gold);letter-spacing:.8px;text-transform:uppercase;}
+.kos-teams{display:flex;flex-direction:column;gap:2px;}
+.kos-team{font-family:'Barlow Condensed';font-weight:700;font-size:14px;}
 
 /* ---------- footer ---------- */
 .foot{text-align:center;padding:30px 20px 50px;border-top:1px solid var(--line);margin-top:30px;}
