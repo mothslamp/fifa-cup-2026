@@ -16,7 +16,7 @@ const GROUPS = {
 const TEAMS = {
   // Grupa A
   A_MX: { id: 'A_MX', group: 'A', flag: '🇲🇽', country: 'Mexic',         p: ['Răzvan Lucăcel', 'Mihai Ologu'] },
-  A_ZA: { id: 'A_ZA', group: 'A', flag: '🇿🇦', country: 'Africa de Sud', p: ['Constantin Ionuț', 'Darius Dumitru'] },
+  A_ZA: { id: 'A_ZA', group: 'A', flag: '🇿🇦', country: 'Africa de Sud', p: ['Ionuț Constantin', 'Darius Dumitru'] },
   A_KR: { id: 'A_KR', group: 'A', flag: '🇰🇷', country: 'Coreea de Sud', p: ['Adrian Vișan', 'Mihaela Mihailciuc'] },
   A_CZ: { id: 'A_CZ', group: 'A', flag: '🇨🇿', country: 'Cehia',         p: ['Andrei Vălimăreanu', 'Andrei Peligrad'] },
 
