@@ -30,7 +30,7 @@ function useTournament() {
 
   // Push only a specific path to Firebase to avoid overwriting concurrent changes
   const pushField = useCallback((field, value) => {
-    if (window.firebaseReady && window.firebaseDb) {
+    if (window.firebaseReady && window.firebaseAuthReady && window.firebaseDb) {
       window.firebaseDb.ref('state/' + field).set(value)
         .catch(e => console.log('Firebase sync failed:', e));
     }
@@ -91,7 +91,7 @@ function useTournament() {
   const resetAll = useCallback(() => {
     if (!readyRef.current) return;
     setState(EMPTY);
-    if (window.firebaseReady && window.firebaseDb) {
+    if (window.firebaseReady && window.firebaseAuthReady && window.firebaseDb) {
       window.firebaseDb.ref('state').set(EMPTY)
         .catch(e => console.log('Firebase sync failed:', e));
     }

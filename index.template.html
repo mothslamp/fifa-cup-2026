@@ -406,6 +406,7 @@ tr.rs-locked td{opacity:.7;}
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
 <!-- ============ firebase init ============ -->
 <script>
@@ -413,6 +414,11 @@ try {
   firebase.initializeApp(firebaseConfig);
   window.firebaseDb = firebase.database();
   window.firebaseReady = true;
+  window.firebaseAuthReady = false;
+  firebase.auth().signInAnonymously().catch(e => console.warn('Anonymous sign-in failed:', e));
+  firebase.auth().onAuthStateChanged(user => {
+    window.firebaseAuthReady = !!user;
+  });
 } catch (e) {
   console.warn('Firebase init skipped - using localStorage only');
   window.firebaseReady = false;

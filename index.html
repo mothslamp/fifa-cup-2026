@@ -406,6 +406,7 @@ tr.rs-locked td{opacity:.7;}
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
 <!-- ============ firebase init ============ -->
 <script>
@@ -423,6 +424,11 @@ try {
   firebase.initializeApp(firebaseConfig);
   window.firebaseDb = firebase.database();
   window.firebaseReady = true;
+  window.firebaseAuthReady = false;
+  firebase.auth().signInAnonymously().catch(e => console.warn('Anonymous sign-in failed:', e));
+  firebase.auth().onAuthStateChanged(user => {
+    window.firebaseAuthReady = !!user;
+  });
 } catch (e) {
   console.warn('Firebase init skipped - using localStorage only');
   window.firebaseReady = false;
@@ -566,7 +572,7 @@ function useTournament() {
 
   // Push only a specific path to Firebase to avoid overwriting concurrent changes
   const pushField = useCallback((field, value) => {
-    if (window.firebaseReady && window.firebaseDb) {
+    if (window.firebaseReady && window.firebaseAuthReady && window.firebaseDb) {
       window.firebaseDb.ref('state/' + field).set(value)
         .catch(e => console.log('Firebase sync failed:', e));
     }
@@ -627,7 +633,7 @@ function useTournament() {
   const resetAll = useCallback(() => {
     if (!readyRef.current) return;
     setState(EMPTY);
-    if (window.firebaseReady && window.firebaseDb) {
+    if (window.firebaseReady && window.firebaseAuthReady && window.firebaseDb) {
       window.firebaseDb.ref('state').set(EMPTY)
         .catch(e => console.log('Firebase sync failed:', e));
     }

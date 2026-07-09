@@ -46,6 +46,11 @@ output = output.replace(
   firebase.initializeApp(firebaseConfig);
   window.firebaseDb = firebase.database();
   window.firebaseReady = true;
+  window.firebaseAuthReady = false;
+  firebase.auth().signInAnonymously().catch(e => console.warn('Anonymous sign-in failed:', e));
+  firebase.auth().onAuthStateChanged(user => {
+    window.firebaseAuthReady = !!user;
+  });
 } catch (e) {
   console.warn('Firebase init skipped - using localStorage only');
   window.firebaseReady = false;
